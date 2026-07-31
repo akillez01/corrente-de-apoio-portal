@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#F2F5F0;color:#1E2A22;font-family:'Inter',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:#2F6B4F;text-decoration:underline}
+a:hover{color:#1B3A2D}
+@keyframes cdaFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes cdaUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column;background:#F2F5F0;font-family:'Inter',sans-serif;font-size:15px;color:#1E2A22">
+
+  <div style="background:#1E2A22;color:#fff;padding:9px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:100;display:{{ barraProto }}">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;background:#D9A441;color:#1E2A22;padding:3px 9px;border-radius:5px;font-weight:500;letter-spacing:.04em">PROTÓTIPO</span>
+    <span style="font-size:12px;opacity:.7">dados fictícios · apresentação interna</span>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto">
+      <button onClick="{{ irPortal }}" style="background:{{ navBgPortal }};border:1px solid {{ navBdPortal }};color:{{ navFgPortal }};font-weight:{{ navFwPortal }};padding:6px 13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:.15s">Portal público</button>
+      <button onClick="{{ irCampanha }}" style="background:{{ navBgCampanha }};border:1px solid {{ navBdCampanha }};color:{{ navFgCampanha }};font-weight:{{ navFwCampanha }};padding:6px 13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:.15s">Campanha</button>
+      <button onClick="{{ irCuradoria }}" style="background:{{ navBgCuradoria }};border:1px solid {{ navBdCuradoria }};color:{{ navFgCuradoria }};font-weight:{{ navFwCuradoria }};padding:6px 13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:.15s">Curadoria</button>
+      <button onClick="{{ irFinanceiro }}" style="background:{{ navBgFinanceiro }};border:1px solid {{ navBdFinanceiro }};color:{{ navFgFinanceiro }};font-weight:{{ navFwFinanceiro }};padding:6px 13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:.15s">Financeiro</button>
+      <button onClick="{{ irFluxo }}" style="background:{{ navBgFluxo }};border:1px solid {{ navBdFluxo }};color:{{ navFgFluxo }};font-weight:{{ navFwFluxo }};padding:6px 13px;border-radius:8px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:.15s">Como funciona</button>
+    </div>
+  </div>
+
+  <header style="background:#1B3A2D;color:#fff;padding:0 24px">
+    <div style="max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:16px 0;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:11px">
+        <div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#D9A441,#a87a1f);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;color:#1B3A2D;font-size:18px">✦</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:600;line-height:1.15">Corrente de Apoio<small style="display:block;font-family:'Inter',sans-serif;font-weight:400;font-size:11px;opacity:.72">Sistema de apoio social · ICEFLU</small></div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:2px;background:rgba(255,255,255,.1);border-radius:9px;padding:3px">
+        <button onClick="{{ setPT }}" style="padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;border:none;background:{{ langBgPT }};color:{{ langFgPT }};font-weight:{{ langFwPT }}">PT</button>
+        <button onClick="{{ setEN }}" style="padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;border:none;background:{{ langBgEN }};color:{{ langFgEN }};font-weight:{{ langFwEN }}">EN</button>
+        <button onClick="{{ setES }}" style="padding:5px 11px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;border:none;background:{{ langBgES }};color:{{ langFgES }};font-weight:{{ langFwES }}">ES</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="background:linear-gradient(180deg,#1B3A2D 0%,#234A39 100%);color:#fff;padding:52px 24px 122px;position:relative;overflow:hidden;display:{{ heroDisplay }}">
+    <svg viewBox="0 0 200 200" fill="currentColor" style="position:absolute;right:-30px;top:-30px;opacity:.07;width:420px"><path d="M100 10 C60 50 40 100 50 150 C90 130 130 90 140 40 C150 20 120 5 100 10 Z"></path><path d="M40 60 C20 90 15 130 30 170 C60 155 85 120 88 80 C90 60 60 45 40 60 Z" opacity=".6"></path></svg>
+    <div style="max-width:1080px;margin:0 auto;position:relative;z-index:1">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#D9A441;margin-bottom:14px">Irmandade que cuida</div>
+      <h1 style="font-family:'Fraunces',serif;font-size:clamp(30px,5vw,46px);font-weight:600;max-width:660px;line-height:1.14;margin-bottom:16px;text-wrap:pretty">Quando um irmão precisa, a corrente inteira responde.</h1>
+      <p style="max-width:540px;opacity:.85;font-size:16px;text-wrap:pretty">Campanhas de apoio verificadas pela instituição, com doação direta por Pix ou PayPal e prestação de contas pública do primeiro ao último centavo.</p>
+    </div>
+  </div>
+
+  <main style="max-width:1080px;width:100%;margin:{{ mainMargin }} auto 0;padding:0 24px 72px;position:relative;z-index:2;flex:1">
+
+    <section data-screen-label="Portal público" style="display:{{ vPortal }};animation:cdaFade .25s ease">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px">
+
+        <div onClick="{{ irCampanha }}" style="background:#fff;border-radius:14px;border:1px solid #DDE6DE;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:.2s;box-shadow:0 1px 2px rgba(27,58,45,.04)" style-hover="transform:translateY(-3px);box-shadow:0 14px 30px rgba(27,58,45,.14)">
+          <div style="height:152px;background:linear-gradient(160deg,#3A7A5C,#1B3A2D);display:flex;align-items:flex-end;padding:12px;color:#fff">
+            <span style="background:#B0522D;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:600;letter-spacing:.01em">Urgente · Saúde</span>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:12px;flex:1">
+            <h3 style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;line-height:1.25">Cirurgia cardíaca do pequeno Rafael</h3>
+            <div style="font-size:13.5px;color:#5A6B60;flex:1;text-wrap:pretty">Criança de 2 anos da irmandade do Céu da Mata precisa de cirurgia com equipe especializada. Família acompanhada pela equipe social.</div>
+            <div>
+              <div style="height:9px;background:#F2F5F0;border-radius:6px;overflow:hidden;border:1px solid #DDE6DE">
+                <div style="height:100%;background:linear-gradient(90deg,#2F6B4F,#5FA37E);border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);width:{{ pctRafael }}"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px">
+                <span><b style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#2F6B4F">R$ {{ arrecadadoFmt }}</b> arrecadados</span>
+                <span style="color:#5A6B60;font-family:'JetBrains Mono',monospace;font-size:12px">meta R$ 50.000</span>
+              </div>
+            </div>
+            <button style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s" style-hover="background:#1B3A2D">Ver campanha e apoiar</button>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:14px;border:1px solid #DDE6DE;overflow:hidden;display:flex;flex-direction:column;transition:.2s;box-shadow:0 1px 2px rgba(27,58,45,.04)" style-hover="transform:translateY(-3px);box-shadow:0 14px 30px rgba(27,58,45,.14)">
+          <div style="height:152px;background:linear-gradient(160deg,#8A6A2F,#4D3A15);display:flex;align-items:flex-end;padding:12px;color:#fff">
+            <span style="background:rgba(0,0,0,.35);padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:500">Moradia</span>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:12px;flex:1">
+            <h3 style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;line-height:1.25">Reconstrução da casa de Dona Marta</h3>
+            <div style="font-size:13.5px;color:#5A6B60;flex:1;text-wrap:pretty">Enchente comprometeu a estrutura da casa. Campanha para material de construção e mão de obra, com orçamentos validados pela equipe.</div>
+            <div>
+              <div style="height:9px;background:#F2F5F0;border-radius:6px;overflow:hidden;border:1px solid #DDE6DE">
+                <div style="height:100%;background:linear-gradient(90deg,#2F6B4F,#5FA37E);border-radius:6px;width:31%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px">
+                <span><b style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#2F6B4F">R$ 5.580</b> arrecadados</span>
+                <span style="color:#5A6B60;font-family:'JetBrains Mono',monospace;font-size:12px">meta R$ 18.000</span>
+              </div>
+            </div>
+            <button onClick="{{ avisoIndisponivel }}" style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s" style-hover="background:#1B3A2D">Ver campanha e apoiar</button>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:14px;border:1px solid #DDE6DE;overflow:hidden;display:flex;flex-direction:column;transition:.2s;box-shadow:0 1px 2px rgba(27,58,45,.04)" style-hover="transform:translateY(-3px);box-shadow:0 14px 30px rgba(27,58,45,.14)">
+          <div style="height:152px;background:linear-gradient(160deg,#5FA37E,#2F6B4F);display:flex;align-items:flex-end;padding:12px;color:#fff">
+            <span style="background:rgba(0,0,0,.35);padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:500">Concluída · Prestação publicada</span>
+          </div>
+          <div style="padding:18px;display:flex;flex-direction:column;gap:12px;flex:1">
+            <h3 style="font-family:'Fraunces',serif;font-size:19px;font-weight:600;line-height:1.25">Cadeira de rodas motorizada para Seu Elias</h3>
+            <div style="font-size:13.5px;color:#5A6B60;flex:1;text-wrap:pretty">Meta atingida em 11 dias com apoio de irmandades de 6 países. Equipamento entregue e comprovante de repasse publicado.</div>
+            <div>
+              <div style="height:9px;background:#F2F5F0;border-radius:6px;overflow:hidden;border:1px solid #DDE6DE">
+                <div style="height:100%;background:linear-gradient(90deg,#D9A441,#E8BD63);border-radius:6px;width:100%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12.5px">
+                <span><b style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:#2F6B4F">R$ 12.300</b> arrecadados</span>
+                <span style="color:#5A6B60;font-family:'JetBrains Mono',monospace;font-size:12px">meta R$ 12.000</span>
+              </div>
+            </div>
+            <button onClick="{{ abrirPrestacao }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:10px;padding:11px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s" style-hover="border-color:#2F6B4F">Ver prestação de contas</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin:40px 0 18px;display:flex;align-items:baseline;gap:12px">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">Por que doar por aqui</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Verificado</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Toda campanha passa pela equipe social da instituição antes de ir ao ar. Nada é publicado sem análise e contato direto com a família.</p>
+        </div>
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Direto</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Sua doação vai para a conta institucional, sem intermediários. O progresso da campanha atualiza automaticamente a cada Pix recebido.</p>
+        </div>
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Transparente</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Cada campanha encerra com prestação de contas pública: quanto entrou, quando foi repassado e o comprovante do repasse.</p>
+        </div>
+      </div>
+    </section>
+
+    <section data-screen-label="Campanha" style="display:{{ vCampanha }};animation:cdaFade .25s ease">
+      <div style="background:#fff;border-radius:14px;border:1px solid #DDE6DE;overflow:hidden;box-shadow:0 1px 2px rgba(27,58,45,.04)">
+        <div style="height:224px;background:linear-gradient(160deg,#3A7A5C,#1B3A2D);display:flex;align-items:flex-end;padding:26px;color:#fff">
+          <div>
+            <span style="background:#B0522D;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600">Urgente · Saúde</span>
+            <h2 style="font-family:'Fraunces',serif;font-size:clamp(22px,3.5vw,32px);font-weight:600;margin-top:12px;text-shadow:0 2px 14px rgba(0,0,0,.35)">Cirurgia cardíaca do pequeno Rafael</h2>
+          </div>
+        </div>
+        <div style="padding:28px;display:grid;grid-template-columns:1.6fr 1fr;gap:32px">
+          <div>
+            <div style="display:inline-flex;align-items:center;gap:7px;background:#EDF6EF;border:1px solid #CBE3D2;color:#2F6B4F;padding:7px 13px;border-radius:9px;font-size:12.5px;font-weight:600;margin-bottom:18px">✔ Campanha verificada pela equipe social em 28/07/2026</div>
+            <p style="margin-bottom:14px;color:#33403A;font-size:14.5px;text-wrap:pretty">Rafael tem 2 anos e é filho de uma família que acompanha os trabalhos desde a fundação da igreja local. Ele precisa de uma cirurgia cardíaca com equipe especializada, além de exames pré-operatórios e acompanhamento pós-cirúrgico.</p>
+            <p style="margin-bottom:14px;color:#33403A;font-size:14.5px;text-wrap:pretty">A equipe social da instituição visitou a família, reuniu os orçamentos médicos e validou os valores com o hospital. Este texto foi revisado e aprovado junto com a família, preservando as informações sensíveis.</p>
+            <p style="margin-bottom:14px;color:#33403A;font-size:14.5px;text-wrap:pretty">Todo valor arrecadado será repassado diretamente para os custos do tratamento. Se a arrecadação superar a meta, o excedente será destinado ao fundo social da instituição, conforme regulamento.</p>
+
+            <h3 style="font-family:'Fraunces',serif;margin:26px 0 16px;font-size:19px;font-weight:600">Linha de transparência</h3>
+            <div style="position:relative;padding-left:28px">
+              <div style="position:absolute;left:9px;top:8px;bottom:8px;width:2px;background:#DDE6DE"></div>
+              <div style="position:relative;padding-bottom:20px">
+                <span style="position:absolute;left:-28px;top:1px;width:19px;height:19px;border-radius:50%;background:#2F6B4F;border:2px solid #2F6B4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px">✔</span>
+                <div style="font-size:13.5px;font-weight:600">Pedido recebido e analisado</div>
+                <div style="font-size:12px;color:#5A6B60">15/07 · Equipe social entrou em contato com a família</div>
+              </div>
+              <div style="position:relative;padding-bottom:20px">
+                <span style="position:absolute;left:-28px;top:1px;width:19px;height:19px;border-radius:50%;background:#2F6B4F;border:2px solid #2F6B4F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px">✔</span>
+                <div style="font-size:13.5px;font-weight:600">Campanha aprovada e publicada</div>
+                <div style="font-size:12px;color:#5A6B60">28/07 · Texto revisado em conjunto com a família · aprovado por Ana Meirelles (curadoria)</div>
+              </div>
+              <div style="position:relative;padding-bottom:20px">
+                <span style="position:absolute;left:-28px;top:1px;width:19px;height:19px;border-radius:50%;background:#D9A441;border:2px solid #D9A441;color:#1E2A22;display:flex;align-items:center;justify-content:center;font-size:10px">●</span>
+                <div style="font-size:13.5px;font-weight:600">Arrecadação em andamento</div>
+                <div style="font-size:12px;color:#5A6B60">{{ pctLabel }} da meta · atualizado automaticamente a cada doação confirmada</div>
+              </div>
+              <div style="position:relative;padding-bottom:20px">
+                <span style="position:absolute;left:-28px;top:1px;width:19px;height:19px;border-radius:50%;background:#fff;border:2px solid #DDE6DE"></span>
+                <div style="font-size:13.5px;font-weight:600;color:#5A6B60">Repasse ao beneficiário</div>
+                <div style="font-size:12px;color:#5A6B60">Realizado pelo financeiro ao fim da campanha, com comprovante anexado</div>
+              </div>
+              <div style="position:relative">
+                <span style="position:absolute;left:-28px;top:1px;width:19px;height:19px;border-radius:50%;background:#fff;border:2px solid #DDE6DE"></span>
+                <div style="font-size:13.5px;font-weight:600;color:#5A6B60">Prestação de contas pública</div>
+                <div style="font-size:12px;color:#5A6B60">Extrato consolidado e comprovante publicados nesta página</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:12px;padding:18px">
+              <div style="height:12px;background:#fff;border-radius:6px;overflow:hidden;border:1px solid #DDE6DE">
+                <div style="height:100%;background:linear-gradient(90deg,#2F6B4F,#5FA37E);border-radius:6px;transition:width .6s cubic-bezier(.2,.8,.2,1);width:{{ pctRafael }}"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:12.5px">
+                <span><b style="font-family:'JetBrains Mono',monospace;font-size:21px;color:#2F6B4F">R$ {{ arrecadadoFmt }}</b><br><span style="font-size:12px;color:#5A6B60">de R$ 50.000</span></span>
+                <span style="color:#5A6B60;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px">{{ doacoes }} doações<br>encerra em 12 dias</span>
+              </div>
+            </div>
+            <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:12px;padding:18px">
+              <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:12px;font-weight:600">Apoiar agora</h4>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <button onClick="{{ abrirPix }}" style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:12px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s" style-hover="background:#1B3A2D">◈ Doar com Pix</button>
+                <button onClick="{{ abrirPaypal }}" style="background:#fff;color:#1E2A22;border:1px solid #DDE6DE;border-radius:10px;padding:12px 20px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.15s" style-hover="border-color:#2F6B4F">Doar com PayPal (internacional)</button>
+              </div>
+              <p style="font-size:11.5px;color:#5A6B60;margin-top:12px;text-wrap:pretty">A doação cai direto na conta institucional no provedor de pagamento. Doações são anônimas por padrão; você pode assinar seu nome se quiser.</p>
+            </div>
+            <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:12px;padding:18px">
+              <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:12px;font-weight:600">Últimos apoios</h4>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ apoios }}" as="a" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;font-size:12.5px;padding:9px 11px;background:#fff;border-radius:9px;border:1px solid #DDE6DE">
+                    <span style="color:#5A6B60">{{ a.quem }}</span>
+                    <span style="font-weight:600;color:#2F6B4F;font-family:'JetBrains Mono',monospace">{{ a.val }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section data-screen-label="Curadoria" style="display:{{ vCuradoria }};animation:cdaFade .25s ease">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">Fila de triagem</h2>
+        <span style="font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:20px;background:#FDF3DC;color:#8A6414;border:1px solid #EBD9A8">Sessão: Ana Meirelles · curadoria</span>
+      </div>
+      <div style="background:#FDF3DC;border:1px solid #EBD9A8;border-radius:12px;padding:14px 16px;font-size:13px;color:#6B4E10;display:flex;gap:10px;margin-bottom:20px;text-wrap:pretty"><span>⚠</span><span>Laudos e documentos anexados aos pedidos são visíveis apenas nesta área, para curadoria e admin. Nada vai ao ar sem aprovação e sem revisão do texto público junto ao requerente.</span></div>
+      <div style="background:#fff;border:1px solid #DDE6DE;border-radius:14px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:2.2fr .8fr .9fr .9fr auto;gap:12px;padding:12px 18px;background:#F2F5F0;border-bottom:1px solid #DDE6DE;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;font-weight:600">
+          <span>Pedido</span><span>Categoria</span><span>Meta sugerida</span><span>Estado</span><span></span>
+        </div>
+        <sc-for list="{{ pedidos }}" as="p" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:2.2fr .8fr .9fr .9fr auto;gap:12px;padding:14px 18px;border-bottom:1px solid #DDE6DE;align-items:center;font-size:13.5px">
+            <div>
+              <div style="font-weight:600">{{ p.nome }}</div>
+              <div style="font-size:12px;color:#5A6B60">{{ p.sub }}</div>
+            </div>
+            <div style="color:#5A6B60">{{ p.categoria }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ p.meta }}</div>
+            <div><span style="display:inline-block;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:{{ p.chipBg }};color:{{ p.chipFg }};border:1px solid {{ p.chipBd }}">{{ p.chipLabel }}</span></div>
+            <button onClick="{{ p.abrir }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:8px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="border-color:#2F6B4F">{{ p.acao }}</button>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:12.5px;color:#5A6B60;margin-top:14px;text-wrap:pretty">Fluxo: submetido → em análise → em alinhamento (contato com o requerente) → aprovado → publicado. Toda transição fica registrada no log de auditoria com autor, horário e hash do registro anterior.</p>
+    </section>
+
+    <section data-screen-label="Financeiro" style="display:{{ vFinanceiro }};animation:cdaFade .25s ease">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">Repasses</h2>
+        <span style="font-size:11.5px;font-weight:600;padding:4px 11px;border-radius:20px;background:#FDECE3;color:#B0522D;border:1px solid #F2CBB5">Sessão: Marcos D'Ávila · financeiro</span>
+      </div>
+      <div style="background:#FDF3DC;border:1px solid #EBD9A8;border-radius:12px;padding:14px 16px;font-size:13px;color:#6B4E10;display:flex;gap:10px;margin-bottom:20px;text-wrap:pretty"><span>⚠</span><span>Por segregação de função, quem aprova a campanha não confirma o repasse. O comprovante anexado aqui é publicado automaticamente na prestação de contas.</span></div>
+      <div style="background:#fff;border:1px solid #DDE6DE;border-radius:14px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr .9fr auto;gap:12px;padding:12px 18px;background:#F2F5F0;border-bottom:1px solid #DDE6DE;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;font-weight:600">
+          <span>Campanha</span><span>Arrecadado</span><span>Encerrada em</span><span>Repasse</span><span></span>
+        </div>
+        <sc-for list="{{ repasses }}" as="r" hint-placeholder-count="2">
+          <div style="display:grid;grid-template-columns:2.2fr 1fr 1fr .9fr auto;gap:12px;padding:14px 18px;border-bottom:1px solid #DDE6DE;align-items:center;font-size:13.5px">
+            <div>
+              <div style="font-weight:600">{{ r.nome }}</div>
+              <div style="font-size:12px;color:#5A6B60">{{ r.sub }}</div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ r.valor }}</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#5A6B60">{{ r.encerrada }}</div>
+            <div><span style="display:inline-block;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:{{ r.chipBg }};color:{{ r.chipFg }};border:1px solid {{ r.chipBd }}">{{ r.chipLabel }}</span></div>
+            <button onClick="{{ r.acao }}" style="border-radius:8px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;background:{{ r.btnBg }};color:{{ r.btnFg }};border:1px solid {{ r.btnBd }}">{{ r.btnLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #DDE6DE;border-radius:14px;padding:20px;margin-top:20px">
+        <h4 style="font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:10px;font-weight:600">Extrato automático</h4>
+        <p style="font-size:13px;color:#5A6B60;text-wrap:pretty">Cada doação chega por webhook do provedor de pagamento e entra no extrato da campanha sem digitação manual. O financeiro exporta o consolidado em CSV ou PDF com um clique.</p>
+        <div style="display:flex;gap:10px;margin-top:14px">
+          <button onClick="{{ exportarCSV }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif" style-hover="border-color:#2F6B4F">Exportar CSV</button>
+          <button onClick="{{ exportarPDF }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif" style-hover="border-color:#2F6B4F">Exportar PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-screen-label="Como funciona" style="display:{{ vFluxo }};animation:cdaFade .25s ease">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">Como funciona</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">1</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Pedido</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">O irmão ou irmã descreve a necessidade, a meta e o prazo, com documentos anexados em área privada.</p>
+        </div>
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">2</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Análise e alinhamento</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">A equipe social conversa com a família, valida valores e escreve junto o texto que vai ao ar.</p>
+        </div>
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">3</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Campanha</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">Publicada com o selo da instituição, o link circula pelas irmandades do mundo inteiro.</p>
+        </div>
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">4</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Doação direta</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">Pix e PayPal caem na conta institucional. O progresso atualiza sozinho, sem trabalho manual.</p>
+        </div>
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">5</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Repasse</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">O financeiro repassa ao beneficiário e anexa o comprovante no sistema.</p>
+        </div>
+        <div style="background:#fff;border:1px solid #DDE6DE;border-radius:12px;padding:20px">
+          <div style="font-family:'Fraunces',serif;font-size:26px;color:#D9A441;font-weight:700;margin-bottom:8px">6</div>
+          <h4 style="font-family:'Fraunces',serif;font-size:16px;margin-bottom:6px;font-weight:600">Prestação de contas</h4>
+          <p style="font-size:12.5px;color:#5A6B60;text-wrap:pretty">Extrato e comprovante ficam públicos na página da campanha, para sempre.</p>
+        </div>
+      </div>
+
+      <div style="margin:40px 0 18px">
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">O que protege a instituição</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Curadoria obrigatória</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Tecnicamente impossível publicar campanha sem aprovação da equipe social. O texto público é sempre reescrito pela curadoria; laudos e documentos nunca vão ao ar.</p>
+        </div>
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Segregação de função</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Quem aprova não repassa. Toda ação administrativa fica registrada em log de auditoria imutável, com autor, horário e encadeamento por hash.</p>
+        </div>
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">LGPD desde o desenho</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">Dados de saúde tratados como sensíveis, com consentimento explícito, acesso restrito por papel e política de retenção configurável.</p>
+        </div>
+        <div style="background:#1B3A2D;color:#fff;border-radius:14px;padding:22px">
+          <h4 style="font-family:'Fraunces',serif;font-size:17px;margin-bottom:8px;color:#D9A441">Sem custódia de dinheiro</h4>
+          <p style="font-size:12.5px;opacity:.85;text-wrap:pretty">O sistema não toca no dinheiro. Doações vão direto do doador para a conta institucional pelo provedor de pagamento.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="background:#1B3A2D;color:#fff;padding:28px 24px;text-align:center;font-size:12.5px">
+    Corrente de Apoio · Sistema de apoio social institucional
+    <div style="font-family:'JetBrains Mono',monospace;opacity:.55;font-size:11px;margin-top:6px">Protótipo v0.2 · dados fictícios · jul/2026</div>
+  </footer>
+
+  <div onClick="{{ fecharTudo }}" style="position:fixed;inset:0;background:rgba(20,30,24,.55);align-items:center;justify-content:center;z-index:200;padding:20px;display:{{ pixDisplay }}">
+    <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;padding:28px;max-width:390px;width:100%;text-align:center;animation:cdaUp .2s ease">
+      <h3 style="font-family:'Fraunces',serif;font-size:21px;font-weight:600">Doar com Pix</h3>
+      <p style="font-size:13px;color:#5A6B60;margin-top:6px;text-wrap:pretty">Escaneie o QR Code ou copie a chave. O valor cai direto na conta institucional e o webhook atualiza o progresso em menos de um minuto.</p>
+      <div style="width:172px;height:172px;margin:18px auto;background:repeating-linear-gradient(0deg,#1E2A22 0 6px,transparent 6px 12px),repeating-linear-gradient(90deg,#1E2A22 0 6px,transparent 6px 12px);border:10px solid #fff;outline:1px solid #DDE6DE;border-radius:8px"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5A6B60;background:#F2F5F0;border:1px solid #DDE6DE;border-radius:8px;padding:9px;margin-bottom:14px;word-break:break-all">iceflu-apoio@pix.org.br</div>
+      <button onClick="{{ simularDoacao }}" style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:12px 20px;width:100%;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1B3A2D">Simular doação recebida (webhook)</button>
+      <button onClick="{{ fecharTudo }}" style="background:none;border:none;color:#5A6B60;font-size:12.5px;margin-top:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline">Fechar</button>
+    </div>
+  </div>
+
+  <div onClick="{{ fecharTudo }}" style="position:fixed;inset:0;background:rgba(20,30,24,.55);align-items:center;justify-content:center;z-index:200;padding:20px;display:{{ paypalDisplay }}">
+    <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;padding:28px;max-width:390px;width:100%;text-align:center;animation:cdaUp .2s ease">
+      <h3 style="font-family:'Fraunces',serif;font-size:21px;font-weight:600">Doar com PayPal</h3>
+      <p style="font-size:13px;color:#5A6B60;margin-top:6px;text-wrap:pretty">Você será levado ao ambiente do PayPal para concluir a doação em EUR, USD ou GBP. O sistema não armazena nenhum dado de pagamento.</p>
+      <div style="display:flex;gap:8px;justify-content:center;margin:18px 0">
+        <span style="border:1px solid #DDE6DE;border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px">€ 25</span>
+        <span style="border:1px solid #2F6B4F;background:#EDF6EF;border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#2F6B4F;font-weight:600">€ 50</span>
+        <span style="border:1px solid #DDE6DE;border-radius:8px;padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:12.5px">€ 100</span>
+      </div>
+      <button onClick="{{ simularDoacao }}" style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:12px 20px;width:100%;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#1B3A2D">Continuar no PayPal (simulação)</button>
+      <button onClick="{{ fecharTudo }}" style="background:none;border:none;color:#5A6B60;font-size:12.5px;margin-top:12px;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:underline">Fechar</button>
+    </div>
+  </div>
+
+  <div onClick="{{ fecharTudo }}" style="position:fixed;inset:0;background:rgba(20,30,24,.55);align-items:flex-start;justify-content:center;z-index:200;padding:24px;overflow:auto;display:{{ triagemDisplay }}">
+    <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;padding:26px;max-width:600px;width:100%;animation:cdaUp .2s ease">
+      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:16px">
+        <div style="flex:1">
+          <h3 style="font-family:'Fraunces',serif;font-size:20px;font-weight:600">{{ pedidoAberto.nome }}</h3>
+          <div style="font-size:12px;color:#5A6B60;font-family:'JetBrains Mono',monospace;margin-top:4px">{{ pedidoAberto.sub }} · meta {{ pedidoAberto.meta }}</div>
+        </div>
+        <button onClick="{{ fecharTudo }}" style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;color:#5A6B60">✕</button>
+      </div>
+      <div style="background:#FDECE3;border:1px solid #F2CBB5;color:#B0522D;border-radius:10px;padding:11px 14px;font-size:12.5px;margin-bottom:16px;text-wrap:pretty">🔒 Área privada · anexos sensíveis visíveis apenas para curadoria e admin. Consentimento LGPD registrado em {{ pedidoAberto.consent }}.</div>
+      <h4 style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:8px;font-weight:600">Anexos do requerente</h4>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">
+        <span style="border:1px solid #DDE6DE;border-radius:8px;padding:7px 12px;font-size:12px;background:#F2F5F0">🔒 laudo-medico.pdf</span>
+        <span style="border:1px solid #DDE6DE;border-radius:8px;padding:7px 12px;font-size:12px;background:#F2F5F0">🔒 orcamento-clinica.pdf</span>
+        <span style="border:1px solid #DDE6DE;border-radius:8px;padding:7px 12px;font-size:12px;background:#F2F5F0">🔒 comprovante-residencia.jpg</span>
+      </div>
+      <h4 style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:8px;font-weight:600">Texto enviado pelo requerente (nunca publicado)</h4>
+      <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:10px;padding:13px;font-size:13px;color:#5A6B60;margin-bottom:18px;text-wrap:pretty">{{ pedidoAberto.textoBruto }}</div>
+      <h4 style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:8px;font-weight:600">Texto público revisado pela curadoria</h4>
+      <textarea style="width:100%;min-height:96px;border:1px solid #DDE6DE;border-radius:10px;padding:13px;font-family:'Inter',sans-serif;font-size:13.5px;color:#1E2A22;resize:vertical;background:#fff;margin-bottom:18px" key="{{ pedidoAberto.id }}" defaultValue="{{ pedidoAberto.textoPublico }}"></textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        <button onClick="{{ reprovar }}" style="background:#fff;color:#B0522D;border:1px solid #F2CBB5;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Reprovar</button>
+        <button onClick="{{ alinhar }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Enviar para alinhamento</button>
+        <button onClick="{{ aprovar }}" style="background:#2F6B4F;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif" style-hover="background:#1B3A2D">Aprovar e publicar</button>
+      </div>
+    </div>
+  </div>
+
+  <div onClick="{{ fecharTudo }}" style="position:fixed;inset:0;background:rgba(20,30,24,.55);align-items:center;justify-content:center;z-index:200;padding:24px;display:{{ repasseDisplay }}">
+    <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;padding:26px;max-width:480px;width:100%;animation:cdaUp .2s ease">
+      <h3 style="font-family:'Fraunces',serif;font-size:20px;font-weight:600">Confirmar repasse</h3>
+      <div style="font-size:13px;color:#5A6B60;margin-top:6px">Auxílio funeral · Fam. Ribeiro — <b style="font-family:'JetBrains Mono',monospace;color:#1E2A22">R$ 6.045,00</b></div>
+      <div style="background:#EDF6EF;border:1px solid #CBE3D2;color:#2F6B4F;border-radius:10px;padding:11px 14px;font-size:12.5px;margin:16px 0;text-wrap:pretty">✔ Campanha aprovada por Ana Meirelles (curadoria). Você é Marcos D'Ávila (financeiro) — segregação de função satisfeita.</div>
+      <h4 style="font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;margin-bottom:8px;font-weight:600">Comprovante do repasse (obrigatório)</h4>
+      <div style="border:1px dashed {{ compBd }};background:{{ compBg }};border-radius:10px;padding:16px;text-align:center;font-size:13px;color:#5A6B60;margin-bottom:18px">
+        <div>{{ compLabel }}</div>
+        <button onClick="{{ anexar }}" style="background:#fff;border:1px solid #DDE6DE;border-radius:8px;padding:7px 14px;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:10px;font-family:'Inter',sans-serif">Anexar comprovante</button>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onClick="{{ fecharTudo }}" style="background:#F2F5F0;color:#1E2A22;border:1px solid #DDE6DE;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Cancelar</button>
+        <button onClick="{{ confirmarRepasse }}" style="border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;background:{{ confBg }};color:{{ confFg }};cursor:{{ confCursor }}">Confirmar repasse</button>
+      </div>
+    </div>
+  </div>
+
+  <div onClick="{{ fecharTudo }}" style="position:fixed;inset:0;background:rgba(20,30,24,.55);align-items:flex-start;justify-content:center;z-index:200;padding:24px;overflow:auto;display:{{ prestacaoDisplay }}">
+    <div onClick="{{ stop }}" style="background:#fff;border-radius:16px;padding:26px;max-width:520px;width:100%;animation:cdaUp .2s ease">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="flex:1">
+          <h3 style="font-family:'Fraunces',serif;font-size:20px;font-weight:600">Prestação de contas</h3>
+          <div style="font-size:12.5px;color:#5A6B60;margin-top:4px">Cadeira de rodas motorizada para Seu Elias · encerrada em 14/07/2026</div>
+        </div>
+        <button onClick="{{ fecharTudo }}" style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:14px;color:#5A6B60">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0">
+        <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:10px;padding:14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;font-weight:600">Arrecadado</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:19px;color:#2F6B4F;margin-top:4px">R$ 12.300,00</div>
+        </div>
+        <div style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:10px;padding:14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#5A6B60;font-weight:600">Repassado</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:19px;color:#2F6B4F;margin-top:4px">R$ 12.300,00</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid #DDE6DE;padding-bottom:8px"><span style="color:#5A6B60">217 doações (Pix + PayPal)</span><span style="font-family:'JetBrains Mono',monospace">01/07 – 14/07</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid #DDE6DE;padding-bottom:8px"><span style="color:#5A6B60">Repasse ao beneficiário</span><span style="font-family:'JetBrains Mono',monospace">16/07/2026</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid #DDE6DE;padding-bottom:8px"><span style="color:#5A6B60">Confirmado por</span><span>Marcos D'Ávila · financeiro</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="color:#5A6B60">Hash do registro</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px">a91f…3c7d</span></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:18px">
+        <button onClick="{{ exportarPDF }}" style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:9px;padding:9px 16px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">📄 Comprovante de repasse.pdf</button>
+        <button onClick="{{ exportarCSV }}" style="background:#F2F5F0;border:1px solid #DDE6DE;border-radius:9px;padding:9px 16px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">Extrato CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:300;background:#1E2A22;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;box-shadow:0 14px 34px rgba(20,30,24,.3);animation:cdaUp .2s ease;display:{{ toastDisplay }}">{{ toast }}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;mostrarBarraPrototipo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;telaInicial&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;portal&quot;,&quot;campanha&quot;,&quot;curadoria&quot;,&quot;financeiro&quot;,&quot;fluxo&quot;],&quot;default&quot;:&quot;portal&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;},&quot;idioma&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;PT&quot;,&quot;EN&quot;,&quot;ES&quot;],&quot;default&quot;:&quot;PT&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Protótipo&quot;}}">
+class Component extends DCLogic {
+  state = {
+    view: null, lang: null, modal: null, pedidoId: null,
+    arrecadado: 32140, doacoes: 217, comprovante: false,
+    estados: { p1: 'submetido', p2: 'analise', p3: 'alinhamento', p4: 'publicado' },
+    repasseFeito: false, toast: null
+  };
+
+  chip(e) {
+    const m = {
+      submetido: { l: 'Submetido', bg: '#F0F0F0', fg: '#555555', bd: '#DDDDDD' },
+      analise: { l: 'Em análise', bg: '#FDF3DC', fg: '#8A6414', bd: '#EBD9A8' },
+      alinhamento: { l: 'Em alinhamento', bg: '#E3EEFB', fg: '#2B5AA0', bd: '#C4D9F2' },
+      aprovado: { l: 'Aprovado', bg: '#EDF6EF', fg: '#2F6B4F', bd: '#CBE3D2' },
+      publicado: { l: 'Publicado', bg: '#EDF6EF', fg: '#2F6B4F', bd: '#CBE3D2' },
+      reprovado: { l: 'Reprovado', bg: '#FDECE3', fg: '#B0522D', bd: '#F2CBB5' }
+    };
+    return m[e] || m.submetido;
+  }
+
+  go(v) {
+    this.setState({ view: v, modal: null });
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  flash(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  fmt(n) { return n.toLocaleString('pt-BR'); }
+
+  transitar(estado, msg) {
+    const id = this.state.pedidoId;
+    if (!id) return;
+    this.setState(s => ({ estados: Object.assign({}, s.estados, { [id]: estado }), modal: null, pedidoId: null }));
+    this.flash(msg);
+  }
+
+  renderVals() {
+    const view = this.state.view ?? (this.props.telaInicial || 'portal');
+    const lang = this.state.lang ?? (this.props.idioma || 'PT');
+    const meta = 50000;
+    const arr = this.state.arrecadado;
+    const pct = Math.min(100, arr / meta * 100);
+    const m = this.state.modal;
+    const d = v => (view === v ? 'block' : 'none');
+
+    const nav = {};
+    ['portal', 'campanha', 'curadoria', 'financeiro', 'fluxo'].forEach(k => {
+      const on = view === k;
+      const K = k.charAt(0).toUpperCase() + k.slice(1);
+      nav['navBg' + K] = on ? '#D9A441' : 'transparent';
+      nav['navBd' + K] = on ? '#D9A441' : 'rgba(255,255,255,.25)';
+      nav['navFg' + K] = on ? '#1E2A22' : '#ffffff';
+      nav['navFw' + K] = on ? 600 : 400;
+    });
+    const langs = {};
+    ['PT', 'EN', 'ES'].forEach(k => {
+      const on = lang === k;
+      langs['langBg' + k] = on ? '#ffffff' : 'transparent';
+      langs['langFg' + k] = on ? '#1B3A2D' : 'rgba(255,255,255,.7)';
+      langs['langFw' + k] = on ? 600 : 400;
+    });
+
+    const es = this.state.estados;
+    const mk = (id, nome, sub, categoria, metaTxt, textoBruto, textoPublico, consent) => {
+      const c = this.chip(es[id]);
+      const acaoMap = { submetido: 'Analisar', analise: 'Continuar', alinhamento: 'Ver contato', aprovado: 'Acompanhar', publicado: 'Acompanhar', reprovado: 'Ver motivo' };
+      return {
+        id, nome, sub, categoria, meta: metaTxt, textoBruto, textoPublico, consent,
+        chipLabel: c.l, chipBg: c.bg, chipFg: c.fg, chipBd: c.bd,
+        acao: acaoMap[es[id]] || 'Analisar',
+        abrir: () => this.setState({ modal: 'triagem', pedidoId: id })
+      };
+    };
+
+    const pedidos = [
+      mk('p1', 'Tratamento odontológico · Irmão Paulo', 'Recebido em 29/07 · Céu do Vale', 'Saúde', 'R$ 4.200',
+        'Preciso de ajuda pra fazer um tratamento nos dentes, tenho laudo do dentista e não consigo pagar sozinho. Trabalho como autônomo e minha renda caiu bastante nos últimos meses.',
+        'O irmão Paulo, da irmandade do Céu do Vale, precisa de tratamento odontológico completo. A equipe social validou o orçamento com a clínica parceira.', '29/07/2026 14:12'),
+      mk('p2', 'Passagens para tratamento em Manaus', 'Recebido em 27/07 · Céu do Mapiá', 'Saúde', 'R$ 2.800',
+        'Minha filha precisa continuar o tratamento em Manaus e não temos como pagar as passagens de barco e avião nem a estadia durante os exames.',
+        'Família do Céu do Mapiá precisa de apoio para deslocamento e estadia durante o tratamento continuado de uma criança em Manaus.', '27/07/2026 09:40'),
+      mk('p3', 'Reforma do telhado · Fam. Souza', 'Recebido em 22/07 · Céu do Triângulo', 'Moradia', 'R$ 9.500',
+        'O telhado caiu com a chuva forte e estamos com a casa alagando. Mandei fotos e dois orçamentos de pedreiro.',
+        'A família Souza teve o telhado comprometido por temporal. A campanha cobre material e mão de obra, com dois orçamentos validados pela equipe.', '22/07/2026 18:05'),
+      mk('p4', 'Cirurgia cardíaca do pequeno Rafael', 'Aprovado em 28/07 · texto revisado com a família', 'Saúde', 'R$ 50.000',
+        'Meu filho de 2 anos precisa de cirurgia no coração, tenho todos os laudos do hospital.',
+        'Rafael tem 2 anos e precisa de cirurgia cardíaca com equipe especializada. A equipe social visitou a família e validou os valores com o hospital.', '15/07/2026 11:20')
+    ];
+
+    const chipR1 = this.chip('publicado');
+    const repasseOk = this.state.repasseFeito;
+    const repasses = [
+      { nome: 'Cadeira de rodas · Seu Elias', sub: '217 doações · Pix + PayPal', valor: 'R$ 12.300,00', encerrada: '14/07/2026',
+        chipLabel: 'Repassado ✔', chipBg: '#EDF6EF', chipFg: '#2F6B4F', chipBd: '#CBE3D2',
+        btnLabel: 'Ver comprovante', btnBg: '#F2F5F0', btnFg: '#1E2A22', btnBd: '#DDE6DE',
+        acao: () => this.setState({ modal: 'prestacao' }) },
+      { nome: 'Auxílio funeral · Fam. Ribeiro', sub: '89 doações · Pix', valor: 'R$ 6.045,00', encerrada: '26/07/2026',
+        chipLabel: repasseOk ? 'Repassado ✔' : 'Pendente',
+        chipBg: repasseOk ? '#EDF6EF' : '#FDECE3', chipFg: repasseOk ? '#2F6B4F' : '#B0522D', chipBd: repasseOk ? '#CBE3D2' : '#F2CBB5',
+        btnLabel: repasseOk ? 'Ver comprovante' : 'Confirmar repasse',
+        btnBg: repasseOk ? '#F2F5F0' : '#D9A441', btnFg: '#1E2A22', btnBd: repasseOk ? '#DDE6DE' : '#D9A441',
+        acao: () => this.setState({ modal: repasseOk ? 'prestacao' : 'repasse' }) }
+    ];
+
+    const pedidoAberto = pedidos.find(p => p.id === this.state.pedidoId) || pedidos[0];
+    const comp = this.state.comprovante;
+
+    return Object.assign({}, nav, langs, {
+      barraProto: (this.props.mostrarBarraPrototipo ?? true) ? 'flex' : 'none',
+      heroDisplay: view === 'portal' ? 'block' : 'none',
+      mainMargin: view === 'portal' ? '-74px' : '32px',
+      vPortal: d('portal'), vCampanha: d('campanha'), vCuradoria: d('curadoria'),
+      vFinanceiro: d('financeiro'), vFluxo: d('fluxo'),
+      irPortal: () => this.go('portal'), irCampanha: () => this.go('campanha'),
+      irCuradoria: () => this.go('curadoria'), irFinanceiro: () => this.go('financeiro'),
+      irFluxo: () => this.go('fluxo'),
+      setPT: () => this.setState({ lang: 'PT' }), setEN: () => this.setState({ lang: 'EN' }), setES: () => this.setState({ lang: 'ES' }),
+      arrecadadoFmt: this.fmt(arr),
+      doacoes: this.state.doacoes,
+      pctRafael: pct.toFixed(1) + '%',
+      pctLabel: Math.round(pct) + '%',
+      apoios: [
+        { quem: 'Anônimo · Holanda', val: '€ 50,00' },
+        { quem: 'Irmã Carmem · RJ', val: 'R$ 100,00' },
+        { quem: 'Anônimo · Céu do Mapiá', val: 'R$ 30,00' },
+        { quem: 'Fam. Nogueira · EUA', val: '$ 200,00' }
+      ],
+      pedidos, repasses, pedidoAberto,
+      pixDisplay: m === 'pix' ? 'flex' : 'none',
+      paypalDisplay: m === 'paypal' ? 'flex' : 'none',
+      triagemDisplay: m === 'triagem' ? 'flex' : 'none',
+      repasseDisplay: m === 'repasse' ? 'flex' : 'none',
+      prestacaoDisplay: m === 'prestacao' ? 'flex' : 'none',
+      abrirPix: () => this.setState({ modal: 'pix' }),
+      abrirPaypal: () => this.setState({ modal: 'paypal' }),
+      abrirPrestacao: () => this.setState({ modal: 'prestacao' }),
+      fecharTudo: () => this.setState({ modal: null, pedidoId: null }),
+      stop: e => e.stopPropagation(),
+      simularDoacao: () => {
+        const v = [30, 50, 100, 150, 250][Math.floor(Math.random() * 5)];
+        this.setState(s => ({ arrecadado: s.arrecadado + v, doacoes: s.doacoes + 1, modal: null }));
+        this.flash('Webhook recebido · doação de R$ ' + v + ' registrada e progresso atualizado');
+      },
+      aprovar: () => this.transitar('publicado', 'Campanha aprovada e publicada · registrada no log de auditoria'),
+      alinhar: () => this.transitar('alinhamento', 'Pedido enviado para alinhamento · e-mail disparado ao requerente'),
+      reprovar: () => this.transitar('reprovado', 'Pedido reprovado · motivo registrado e requerente notificado'),
+      anexar: () => this.setState({ comprovante: true }),
+      compLabel: comp ? '📎 comprovante-transferencia.pdf anexado' : 'Nenhum comprovante anexado — não é possível confirmar',
+      compBg: comp ? '#EDF6EF' : '#FDECE3',
+      compBd: comp ? '#CBE3D2' : '#F2CBB5',
+      confBg: comp ? '#2F6B4F' : '#DDE6DE',
+      confFg: comp ? '#ffffff' : '#9AA79E',
+      confCursor: comp ? 'pointer' : 'not-allowed',
+      confirmarRepasse: () => {
+        if (!comp) { this.flash('Anexe o comprovante para confirmar o repasse'); return; }
+        this.setState({ repasseFeito: true, modal: null, comprovante: false });
+        this.flash('Repasse confirmado · prestação de contas publicada automaticamente');
+      },
+      exportarCSV: () => this.flash('Extrato consolidado exportado em CSV (simulação)'),
+      exportarPDF: () => this.flash('Documento gerado em PDF (simulação)'),
+      avisoIndisponivel: () => this.flash('No protótipo, só a campanha do Rafael tem página de detalhe'),
+      toast: this.state.toast,
+      toastDisplay: this.state.toast ? 'block' : 'none',
+      chipR1
+    });
+  }
+}
+</script>
+</body>
+</html>
