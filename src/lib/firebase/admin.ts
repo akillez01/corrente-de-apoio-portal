@@ -2,11 +2,16 @@ import "server-only";
 import { cert, getApps, initializeApp, type App } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
-import { getStorage } from "firebase-admin/storage";
 
 function getAdminApp(): App {
   const existing = getApps()[0];
   if (existing) return existing;
+
+  if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true") {
+    return initializeApp({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "demo-corrente-de-apoio",
+    });
+  }
 
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   if (!serviceAccountJson) {
@@ -15,10 +20,7 @@ function getAdminApp(): App {
     );
   }
 
-  return initializeApp({
-    credential: cert(JSON.parse(serviceAccountJson)),
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  });
+  return initializeApp({ credential: cert(JSON.parse(serviceAccountJson)) });
 }
 
 export function getAdminAuth() {
@@ -27,8 +29,4 @@ export function getAdminAuth() {
 
 export function getAdminDb() {
   return getFirestore(getAdminApp());
-}
-
-export function getAdminStorage() {
-  return getStorage(getAdminApp());
 }

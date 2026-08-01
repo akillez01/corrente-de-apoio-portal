@@ -2,8 +2,15 @@
 
 ## 1. Stack
 
-- Next.js 14+ (App Router), TypeScript, Tailwind
-- Firebase: Auth (custom claims para papéis), Firestore, Storage, Cloud Functions
+- Next.js 14+ (App Router), TypeScript, Tailwind, rodando como app Node.js (SSR real, não
+  export estático — Server Components leem cookie de sessão, rotas de API fazem upload de
+  arquivo e escrita autenticada via Admin SDK)
+- Firebase: Auth (custom claims para papéis), Firestore, Cloud Functions
+- Anexos e comprovantes (laudos, documentos sensíveis, comprovantes de repasse): disco local
+  no servidor de aplicação, atrás de rotas autenticadas que checam papel a cada request —
+  não Firebase Storage. Decisão: manter dados sensíveis de saúde sob a infraestrutura da
+  própria instituição (LGPD) e evitar depender do plano pago (Blaze) só por causa do Storage.
+  Ver `src/lib/storage/localStorage.ts`.
 - Firebase App Check ativo em produção (todas as calls)
 - Pagamentos por webhook: Mercado Pago (Pix) e PayPal (internacional)
 - i18n: pt-BR (padrão), en, es — strings externalizadas desde o início
@@ -51,8 +58,9 @@ Toda transição grava em `audit_log` (ator, timestamp, hash do registro anterio
 
 ## 5. Segurança e LGPD
 
-1. Anexos de `requests` em pasta do Storage acessível apenas a curador/admin e ao próprio
-   requerente. Nunca públicos.
+1. Anexos de `requests` em disco no servidor de aplicação, fora do diretório público,
+   servidos só por rota autenticada que checa papel (curador/admin) ou o próprio
+   requerente a cada acesso. Nunca públicos.
 2. Firestore Rules: o cliente **jamais** escreve em `campaigns.arrecadado`, `donations`,
    `transfers` ou `audit_log` — apenas Cloud Functions (Admin SDK).
 3. Webhooks validam assinatura do PSP e são idempotentes (id externo único).

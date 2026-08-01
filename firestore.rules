@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function role() {
+      return request.auth.token.role;
+    }
+
+    function hasRole(r) {
+      return signedIn() && role() == r;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    // campaigns: versão pública, criada pelo curador a partir de um request.
+    // Uma vez publicada, a campanha permanece com página própria visível pelo resto do
+    // ciclo de vida (inclusive em repasse/encerramento), mesmo que suma da listagem do portal.
+    match /campaigns/{campaignId} {
+      allow read: if resource.data.status in
+        ['publicado', 'meta_atingida', 'prazo_encerrado', 'repasse_pendente',
+         'repassado', 'prestacao_publicada', 'encerrado'] ||
+        hasRole('curador') || hasRole('financeiro') || isAdmin();
+      allow write: if false;
+    }
+
+    // requests: pedido bruto, privado — nunca público.
+    match /requests/{requestId} {
+      allow read: if signedIn() &&
+        (resource.data.requerenteId == request.auth.uid ||
+         hasRole('curador') || isAdmin());
+      allow create: if signedIn() && request.resource.data.requerenteId == request.auth.uid;
+      allow update: if hasRole('curador') || isAdmin();
+      allow delete: if false;
+    }
+
+    // donations: valor + método são mostrados publicamente como "últimos apoios"
+    // (anônimas por padrão); só Cloud Functions (Admin SDK) escrevem.
+    match /donations/{donationId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // transfers: comprovante e extrato só ficam públicos quando a campanha
+    // correspondente já está com prestação de contas divulgada.
+    match /transfers/{transferId} {
+      allow read: if hasRole('financeiro') || isAdmin() ||
+        get(/databases/$(database)/documents/campaigns/$(resource.data.campaignId))
+          .data.status == 'prestacao_publicada';
+      allow write: if false;
+    }
+
+    match /audit_log/{entryId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // users: cada um lê/edita o próprio perfil; admin gerencia papéis.
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isAdmin();
+    }
+  }
+}

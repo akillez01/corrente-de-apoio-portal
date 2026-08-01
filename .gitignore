@@ -29,12 +29,17 @@ yarn-error.log*
 .env
 .env*.local
 
+# anexos enviados localmente (laudos, comprovantes)
+/.data/
+
 # firebase
 .firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
 *-debug.log
+firebase-service-account.json
+*firebase-adminsdk*.json
 
 # vercel
 .vercel
