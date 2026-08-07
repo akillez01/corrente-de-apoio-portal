@@ -1,0 +1,11 @@
+Código do App Check pronto no cliente (src/lib/firebase/client.ts) — só ativa em produção (nunca no emulador local), e nunca durante build/SSR. Typecheck limpo.
+
+Falta uma parte que só dá pra fazer pelo Console do Firebase (registrar o provedor gera uma chave reCAPTCHA v3 amarrada ao domínio real — não dá pra fabricar isso por API):
+
+1. Abra https://console.firebase.google.com/project/corrente-de-apoio/appcheck
+2. Aba Apps → ache o app web (o mesmo do NEXT_PUBLIC_FIREBASE_APP_ID) → Registrar
+3. Escolha o provedor reCAPTCHA v3
+4. Domínio: correntedeapoio.74-208-44-241.plesk.page
+5. Depois de registrar
+
+Me passa essa site key que eu já boto no .env.production.local, rebuild e redeploy. Importante: vamos deixar a aplicação de regras como "Não aplicado" (unenforced) até confirmar que o login continua funcionando com App Check ativo — só depois disso eu te aviso pra você virar pra "Aplicado" (enforced) na aba APIs, senão corre risco de travar o próprio login durante a janela entre o deploy e a confirmação.

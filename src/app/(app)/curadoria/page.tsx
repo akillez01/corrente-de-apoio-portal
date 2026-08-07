@@ -1,14 +1,21 @@
-import Link from "next/link";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { StatusChip } from "@/components/StatusChip";
 import { requireRole } from "@/lib/auth/session";
 import { getRequestsQueue } from "@/lib/data/requests";
-import { StatusChip } from "@/components/StatusChip";
 import { formatBRL } from "@/lib/format";
+import Link from "next/link";
 
 export const revalidate = 0;
 
 export default async function CuradoriaFilaPage() {
   const user = await requireRole("curador", "admin");
   const requests = await getRequestsQueue();
+  const urgentes = requests.filter((request) => request.urgente).length;
+  const emAlinhamento = requests.filter((request) => request.status === "em_alinhamento").length;
+  const metaFila = requests.reduce((acc, request) => acc + request.meta, 0);
+  const pendentesIniciais = requests.filter(
+    (request) => request.status === "submetido" || request.status === "em_analise",
+  ).length;
 
   return (
     <div>
@@ -26,6 +33,17 @@ export default async function CuradoriaFilaPage() {
           curadoria e admin. Nada vai ao ar sem aprovação e sem revisão do texto público
           junto ao requerente.
         </span>
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Fila ativa" value={String(requests.length)} />
+        <KpiCard label="Pedidos urgentes" value={String(urgentes)} />
+        <KpiCard label="Em alinhamento" value={String(emAlinhamento)} />
+        <KpiCard
+          label="Meta em analise"
+          value={`R$ ${formatBRL(metaFila)}`}
+          hint={`${pendentesIniciais} pedido(s) aguardando primeira conclusao`}
+        />
       </div>
 
       {requests.length === 0 ? (

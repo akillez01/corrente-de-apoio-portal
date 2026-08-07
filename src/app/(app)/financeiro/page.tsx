@@ -1,7 +1,8 @@
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { RepasseAction } from "@/components/financeiro/RepasseAction";
+import { StatusChip } from "@/components/StatusChip";
 import { requireRole } from "@/lib/auth/session";
 import { getCampaignsForFinance } from "@/lib/data/finance";
-import { StatusChip } from "@/components/StatusChip";
-import { RepasseAction } from "@/components/financeiro/RepasseAction";
 import { formatBRL } from "@/lib/format";
 
 export const revalidate = 0;
@@ -11,6 +12,14 @@ const PENDING_STATUSES = new Set(["meta_atingida", "prazo_encerrado", "repasse_p
 export default async function FinanceiroPage() {
   const user = await requireRole("financeiro", "admin");
   const campaigns = await getCampaignsForFinance();
+  const aguardandoRepasse = campaigns.filter((campaign) => PENDING_STATUSES.has(campaign.status)).length;
+  const concluidas = campaigns.filter(
+    (campaign) => campaign.status === "repassado" || campaign.status === "prestacao_publicada",
+  ).length;
+  const valorNoFluxo = campaigns.reduce((acc, campaign) => acc + campaign.arrecadado, 0);
+  const bloqueadasSegregacao = campaigns.filter(
+    (campaign) => PENDING_STATUSES.has(campaign.status) && campaign.aprovadoPorUid === user.uid,
+  ).length;
 
   return (
     <div>
@@ -27,6 +36,17 @@ export default async function FinanceiroPage() {
           Por segregação de função, quem aprova a campanha não confirma o repasse. O
           comprovante anexado aqui é publicado automaticamente na prestação de contas.
         </span>
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Campanhas no financeiro" value={String(campaigns.length)} />
+        <KpiCard label="Aguardando repasse" value={String(aguardandoRepasse)} />
+        <KpiCard label="Fluxo total" value={`R$ ${formatBRL(valorNoFluxo)}`} />
+        <KpiCard
+          label="Concluidas"
+          value={String(concluidas)}
+          hint={`${bloqueadasSegregacao} bloqueada(s) por segregacao para seu usuario`}
+        />
       </div>
 
       {campaigns.length === 0 ? (

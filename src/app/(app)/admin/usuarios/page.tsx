@@ -1,17 +1,166 @@
+import { CreateUserForm } from "@/components/admin/CreateUserForm";
+import { RoleSelect } from "@/components/admin/RoleSelect";
+import { KpiCard } from "@/components/dashboard/KpiCard";
 import { requireRole } from "@/lib/auth/session";
 import { listUsers } from "@/lib/data/users";
-import { RoleSelect } from "@/components/admin/RoleSelect";
-import { CreateUserForm } from "@/components/admin/CreateUserForm";
+import { getAdminDb } from "@/lib/firebase/admin";
+import { formatBRL } from "@/lib/format";
+import type { Campaign, Donation, RequestStatus, SupportRequest, Transfer } from "@/lib/types/domain";
 
 export const revalidate = 0;
+
+function toRoleCount(users: Awaited<ReturnType<typeof listUsers>>) {
+  return users.reduce(
+    (acc, user) => {
+      acc[user.role] += 1;
+      return acc;
+    },
+    { requerente: 0, curador: 0, financeiro: 0, admin: 0 },
+  );
+}
+
+function toRequestStatusCount(requests: SupportRequest[]) {
+  return requests.reduce(
+    (acc, request) => {
+      acc[request.status] = (acc[request.status] ?? 0) + 1;
+      return acc;
+    },
+    {} as Record<RequestStatus, number>,
+  );
+}
 
 export default async function AdminUsuariosPage() {
   const user = await requireRole("admin");
   const users = await listUsers();
 
+  const [requestsSnapshot, campaignsSnapshot, donationsSnapshot, transfersSnapshot] =
+    await Promise.all([
+      getAdminDb().collection("requests").get(),
+      getAdminDb().collection("campaigns").get(),
+      getAdminDb().collection("donations").get(),
+      getAdminDb().collection("transfers").get(),
+    ]);
+
+  const requests = requestsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as SupportRequest);
+  const campaigns = campaignsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Campaign);
+  const donations = donationsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Donation);
+  const transfers = transfersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Transfer);
+
+  const roles = toRoleCount(users);
+  const requestStatus = toRequestStatusCount(requests);
+  const campaignsPublicadas = campaigns.filter((campaign) => campaign.status === "publicado").length;
+  const campanhasPrestacao = campaigns.filter(
+    (campaign) => campaign.status === "prestacao_publicada" || campaign.status === "repassado",
+  ).length;
+  const arrecadadoTotal = campaigns.reduce((acc, campaign) => acc + campaign.arrecadado, 0);
+  const repassadoTotal = transfers.reduce((acc, transfer) => acc + transfer.valor, 0);
+  const doacoesTotal = donations.reduce((acc, donation) => acc + donation.valor, 0);
+  const pedidosUrgentes = requests.filter((request) => request.urgente).length;
+
+  const latestRequests = [...requests]
+    .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
+    .slice(0, 5);
+  const topCampaigns = [...campaigns]
+    .sort((a, b) => b.arrecadado - a.arrecadado)
+    .slice(0, 5);
+
   return (
     <div>
-      <h1 className="mb-1 font-serif text-2xl font-semibold">Usuários e papéis</h1>
+      <h1 className="mb-1 font-serif text-2xl font-semibold">Painel geral do sistema</h1>
+      <p className="mb-5 text-[13px] text-muted">
+        Visão consolidada para admin com dados de todas as áreas: requerente, curadoria,
+        financeiro e gestão de usuários.
+      </p>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Usuarios" value={String(users.length)} hint={`${roles.admin} admin(s)`} />
+        <KpiCard label="Pedidos" value={String(requests.length)} hint={`${pedidosUrgentes} urgente(s)`} />
+        <KpiCard label="Campanhas" value={String(campaigns.length)} hint={`${campaignsPublicadas} publicadas`} />
+        <KpiCard label="Doacoes registradas" value={`R$ ${formatBRL(doacoesTotal)}`} />
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Arrecadado total" value={`R$ ${formatBRL(arrecadadoTotal)}`} />
+        <KpiCard label="Repassado total" value={`R$ ${formatBRL(repassadoTotal)}`} />
+        <KpiCard label="Prestacao publicada" value={String(campanhasPrestacao)} />
+        <KpiCard label="Total de repasses" value={String(transfers.length)} />
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-white p-4">
+          <h2 className="mb-3 font-serif text-lg font-semibold">Usuarios por papel</h2>
+          <div className="grid grid-cols-2 gap-2 text-[13px]">
+            <div className="rounded-lg border border-border bg-bg p-3">Requerente: {roles.requerente}</div>
+            <div className="rounded-lg border border-border bg-bg p-3">Curadoria: {roles.curador}</div>
+            <div className="rounded-lg border border-border bg-bg p-3">Financeiro: {roles.financeiro}</div>
+            <div className="rounded-lg border border-border bg-bg p-3">Admin: {roles.admin}</div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-white p-4">
+          <h2 className="mb-3 font-serif text-lg font-semibold">Pedidos por status</h2>
+          <div className="grid grid-cols-2 gap-2 text-[13px]">
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Submetido: {requestStatus.submetido ?? 0}
+            </div>
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Em analise: {requestStatus.em_analise ?? 0}
+            </div>
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Em alinhamento: {requestStatus.em_alinhamento ?? 0}
+            </div>
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Aprovado: {requestStatus.aprovado ?? 0}
+            </div>
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Reprovado: {requestStatus.reprovado ?? 0}
+            </div>
+            <div className="rounded-lg border border-border bg-bg p-3">
+              Arquivado: {requestStatus.arquivado ?? 0}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-white p-4">
+          <h2 className="mb-3 font-serif text-lg font-semibold">Ultimos pedidos enviados</h2>
+          {latestRequests.length === 0 ? (
+            <p className="text-[13px] text-muted">Nenhum pedido registrado.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {latestRequests.map((request) => (
+                <div key={request.id} className="rounded-lg border border-border bg-bg p-3 text-[13px]">
+                  <div className="font-semibold">{request.titulo}</div>
+                  <div className="mt-0.5 text-muted">
+                    {request.requerenteNome} · {new Date(request.criadoEm).toLocaleDateString("pt-BR")}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-white p-4">
+          <h2 className="mb-3 font-serif text-lg font-semibold">Top campanhas por arrecadacao</h2>
+          {topCampaigns.length === 0 ? (
+            <p className="text-[13px] text-muted">Nenhuma campanha registrada.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {topCampaigns.map((campaign) => (
+                <div key={campaign.id} className="rounded-lg border border-border bg-bg p-3 text-[13px]">
+                  <div className="font-semibold">{campaign.titulo}</div>
+                  <div className="mt-0.5 text-muted">
+                    {campaign.status} · R$ {formatBRL(campaign.arrecadado)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <h2 className="mb-1 font-serif text-2xl font-semibold">Usuarios e papeis</h2>
       <p className="mb-5 text-[13px] text-muted">
         Trocar o papel atualiza os custom claims no Firebase Auth e o registro em{" "}
         <code>users</code>. A mudança vale a partir do próximo login (ou renovação de

@@ -6,6 +6,9 @@ const { getAuth } = require("firebase-admin/auth");
 const fs = require("fs/promises");
 const path = require("path");
 
+const PROJECT_ID =
+  process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || "corrente-de-apoio";
+
 if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_HOST) {
   console.error(
     "FIRESTORE_EMULATOR_HOST e FIREBASE_AUTH_EMULATOR_HOST precisam estar setados. Ex.:\n" +
@@ -14,7 +17,7 @@ if (!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_
   process.exit(1);
 }
 
-const app = initializeApp({ projectId: "demo-corrente-de-apoio" });
+const app = initializeApp({ projectId: PROJECT_ID });
 const db = getFirestore(app);
 const auth = getAuth(app);
 const STORAGE_ROOT = path.resolve(process.env.STORAGE_DIR ?? "./.data/uploads");
@@ -35,6 +38,10 @@ async function seedUsers() {
     let userRecord;
     try {
       userRecord = await auth.getUserByEmail(u.email);
+      await auth.updateUser(userRecord.uid, {
+        password: DEMO_PASSWORD,
+        displayName: u.nome,
+      });
     } catch {
       userRecord = await auth.createUser({
         email: u.email,

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { SessionUser } from "@/lib/auth/session";
+import Link from "next/link";
 import { LogoutButton } from "./LogoutButton";
 
 const ROLE_LABEL: Record<string, string> = {
@@ -14,6 +14,7 @@ const NAV: { href: string; label: string; roles: string[] }[] = [
   { href: "/financeiro", label: "Financeiro", roles: ["financeiro", "admin"] },
   { href: "/meus-pedidos", label: "Meus pedidos", roles: ["requerente"] },
   { href: "/admin/usuarios", label: "Usuários", roles: ["admin"] },
+  { href: "/admin/atendimentos", label: "Assistente", roles: ["admin"] },
 ];
 
 export function AppHeader({ user }: { user: SessionUser }) {
@@ -23,7 +24,7 @@ export function AppHeader({ user }: { user: SessionUser }) {
     <header className="bg-header text-white">
       <div className="mx-auto flex max-w-[1080px] flex-wrap items-center gap-3 px-6 py-3">
         <Link href="/pt" className="font-serif text-base font-semibold">
-          Corrente de Apoio
+          Rede Sol
         </Link>
         <nav className="flex flex-wrap gap-1 text-[13px]">
           {items.map((item) => (

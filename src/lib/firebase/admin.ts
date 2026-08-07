@@ -9,7 +9,10 @@ function getAdminApp(): App {
 
   if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true") {
     return initializeApp({
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "demo-corrente-de-apoio",
+      projectId:
+        process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ??
+        process.env.GCLOUD_PROJECT ??
+        "corrente-de-apoio",
     });
   }
 

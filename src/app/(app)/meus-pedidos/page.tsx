@@ -1,15 +1,24 @@
-import Link from "next/link";
-import { requireRole } from "@/lib/auth/session";
-import { getRequestsByRequerente } from "@/lib/data/requests";
-import { getCampaignByRequestId } from "@/lib/data/campaigns";
 import { StatusChip } from "@/components/StatusChip";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { requireRole } from "@/lib/auth/session";
+import { getCampaignByRequestId } from "@/lib/data/campaigns";
+import { getRequestsByRequerente } from "@/lib/data/requests";
 import { formatBRL } from "@/lib/format";
+import Link from "next/link";
 
 export const revalidate = 0;
 
 export default async function MeusPedidosPage() {
   const user = await requireRole("requerente", "admin");
   const requests = await getRequestsByRequerente(user.uid);
+  const totalMeta = requests.reduce((acc, request) => acc + request.meta, 0);
+  const emAndamento = requests.filter((request) =>
+    ["submetido", "em_analise", "em_alinhamento"].includes(request.status),
+  ).length;
+  const aprovados = requests.filter((request) => request.status === "aprovado").length;
+  const reprovados = requests.filter((request) => request.status === "reprovado").length;
+  const totalMensagens = requests.reduce((acc, request) => acc + request.mensagens.length, 0);
+
   const campaignsByRequest = new Map<string, string>();
   for (const request of requests) {
     if (request.status === "aprovado") {
@@ -28,6 +37,18 @@ export default async function MeusPedidosPage() {
         >
           + Novo pedido
         </Link>
+      </div>
+
+      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <KpiCard label="Pedidos enviados" value={String(requests.length)} />
+        <KpiCard label="Em andamento" value={String(emAndamento)} />
+        <KpiCard label="Aprovados" value={String(aprovados)} />
+        <KpiCard label="Reprovados" value={String(reprovados)} />
+        <KpiCard
+          label="Meta total"
+          value={`R$ ${formatBRL(totalMeta)}`}
+          hint={`${totalMensagens} mensagem(ns) no historico`}
+        />
       </div>
 
       {requests.length === 0 ? (

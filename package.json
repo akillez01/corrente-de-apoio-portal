@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync:users": "node scripts/sync-auth-users.js"
   },
   "dependencies": {
     "firebase": "^12.17.0",

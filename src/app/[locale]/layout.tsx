@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
-import { locales, type Locale } from "@/lib/i18n/config";
-import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { AssistenteVirtualWidget } from "@/components/assistente/AssistenteVirtualWidget";
+import { locales, type Locale } from "@/lib/i18n/config";
+import { notFound } from "next/navigation";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -23,6 +24,7 @@ export default function LocaleLayout({
       <SiteHeader />
       <div className="flex-1">{children}</div>
       <SiteFooter />
+      <AssistenteVirtualWidget />
     </div>
   );
 }

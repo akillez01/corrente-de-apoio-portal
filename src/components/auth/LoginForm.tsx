@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/client";
 import type { Role } from "@/lib/types/domain";
+import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 const LANDING_BY_ROLE: Record<Role, string> = {
   curador: "/curadoria",
@@ -104,7 +104,7 @@ export function LoginForm() {
         ← Voltar ao portal
       </Link>
       <h1 className="mb-1 font-serif text-2xl font-semibold">Entrar</h1>
-      <p className="mb-6 text-sm text-muted">Acesso à área interna — Corrente de Apoio</p>
+      <p className="mb-6 text-sm text-muted">Acesso à área interna — Rede Sol</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Modal = "pix" | "paypal" | null;
 
@@ -82,7 +82,7 @@ export function DonationPanel({ campaignId }: { campaignId: string }) {
             </p>
             <div className="mx-auto my-4.5 h-[172px] w-[172px] rounded-lg border-[10px] border-white outline outline-1 outline-border [background:repeating-linear-gradient(0deg,#1E2A22_0_6px,transparent_6px_12px),repeating-linear-gradient(90deg,#1E2A22_0_6px,transparent_6px_12px)]" />
             <div className="mb-3.5 break-all rounded-lg border border-border bg-bg p-2.5 font-mono text-[11.5px] text-muted">
-              iceflu-apoio@pix.org.br
+              redesol-apoio@pix.org.br
             </div>
             <button
               disabled={loading}

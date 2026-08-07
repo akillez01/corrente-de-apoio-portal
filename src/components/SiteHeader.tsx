@@ -2,16 +2,18 @@ import Link from "next/link";
 
 export function SiteHeader() {
   return (
-    <header className="bg-header text-white">
-      <div className="mx-auto flex max-w-[1080px] flex-wrap items-center gap-4 px-6 py-4">
+    <header className="bg-[#103427] text-white">
+      <div className="mx-auto flex max-w-[1140px] flex-wrap items-center gap-4 px-6 py-4">
         <Link href="/pt" className="flex items-center gap-3">
-          <div className="flex h-[38px] w-[38px] items-center justify-center rounded-full bg-[radial-gradient(circle_at_35%_30%,#D9A441,#a87a1f)] font-serif text-lg font-bold text-header">
-            ✦
-          </div>
+          <img
+            src="https://optim.tildacdn.one/tild3166-6538-4637-b234-343136396538/-/cover/212x212/center/center/-/format/webp/BLOCO_1_-_LOGOTIPO.png.webp"
+            alt="Logo Rede Sol"
+            className="h-11 w-11 rounded-full border border-white/25 bg-white object-cover"
+          />
           <div className="font-serif text-lg font-semibold leading-tight">
-            Corrente de Apoio
-            <small className="block font-sans text-[11px] font-normal opacity-70">
-              Sistema de apoio social · ICEFLU
+            Rede Sol
+            <small className="block font-sans text-[11px] font-normal opacity-75">
+              Assistencia social e saude na Amazonia
             </small>
           </div>
         </Link>
@@ -19,8 +21,14 @@ export function SiteHeader() {
           <Link href="/pt" className="rounded-lg px-3 py-1.5 opacity-90 hover:opacity-100">
             Campanhas
           </Link>
+          <Link href="/pt#frentes" className="rounded-lg px-3 py-1.5 opacity-90 hover:opacity-100">
+            Frentes de acao
+          </Link>
           <Link href="/pt/como-funciona" className="rounded-lg px-3 py-1.5 opacity-90 hover:opacity-100">
             Como funciona
+          </Link>
+          <Link href="/pt/voluntarios" className="rounded-lg px-3 py-1.5 opacity-90 hover:opacity-100">
+            Voluntarios
           </Link>
           <Link
             href="/login"

@@ -19,8 +19,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Corrente de Apoio",
-  description: "Portal de campanhas de apoio social — ICEFLU",
+  title: "Rede Sol",
+  description: "Rede Sol: apoio social e de saude na Amazonia com transparencia e doacao direta.",
 };
 
 export default function RootLayout({
