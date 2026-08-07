@@ -21,6 +21,26 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Rede Sol",
   description: "Rede Sol: apoio social e de saude na Amazonia com transparencia e doacao direta.",
+  icons: {
+    icon: [
+      {
+        url: "https://optim.tildacdn.one/tild3166-6538-4637-b234-343136396538/-/cover/64x64/center/center/-/format/png/BLOCO_1_-_LOGOTIPO.png",
+        type: "image/png",
+      },
+    ],
+    apple: [
+      {
+        url: "https://optim.tildacdn.one/tild3166-6538-4637-b234-343136396538/-/cover/180x180/center/center/-/format/png/BLOCO_1_-_LOGOTIPO.png",
+        type: "image/png",
+      },
+    ],
+    shortcut: [
+      {
+        url: "https://optim.tildacdn.one/tild3166-6538-4637-b234-343136396538/-/cover/64x64/center/center/-/format/png/BLOCO_1_-_LOGOTIPO.png",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
