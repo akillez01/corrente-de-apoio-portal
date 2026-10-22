@@ -1,7 +1,9 @@
-// Cria (ou atualiza) um usuario com papel "admin" no Auth + Firestore.
+// Cria (ou atualiza) um usuario no Auth + Firestore com papel "admin" (padrao) ou
+// outro papel informado em --role.
 //
 // Uso:
 //   node scripts/create-admin-user.js --target=production --email=x@y.com --password=Senha123 --nome="Nome"
+//   node scripts/create-admin-user.js --target=production --role=assistente_social --email=... --password=... --nome="..."
 //   node scripts/create-admin-user.js --target=emulator --email=x@y.com --password=Senha123 --nome="Nome"
 //
 // target=production le a service account de .env.production.local.
@@ -13,6 +15,8 @@ const { initializeApp, cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 
+const ROLES = ["requerente", "curador", "assistente_social", "financeiro", "editor_conteudo", "admin"];
+
 function parseArgs() {
   const args = Object.fromEntries(
     process.argv.slice(2).map((arg) => {
@@ -20,7 +24,7 @@ function parseArgs() {
       return [key, rest.join("=") || true];
     }),
   );
-  return { target: args.target, email: args.email, password: args.password, nome: args.nome };
+  return { target: args.target, email: args.email, password: args.password, nome: args.nome, role: args.role || "admin" };
 }
 
 function loadProductionEnvFile() {
@@ -39,7 +43,11 @@ function loadProductionEnvFile() {
 }
 
 async function main() {
-  const { target, email, password, nome } = parseArgs();
+  const { target, email, password, nome, role } = parseArgs();
+  if (!ROLES.includes(role)) {
+    console.error(`--role precisa ser um de: ${ROLES.join(", ")}.`);
+    process.exit(1);
+  }
   if (!target || !email || !password || !nome) {
     console.error(
       'Uso: node scripts/create-admin-user.js --target=production|emulator --email=x@y.com --password=Senha123 --nome="Nome"',
@@ -84,10 +92,10 @@ async function main() {
     console.log(`Usuario criado (uid ${userRecord.uid}).`);
   }
 
-  await auth.setCustomUserClaims(userRecord.uid, { role: "admin", name: nome });
-  await db.collection("users").doc(userRecord.uid).set({ nome, email, role: "admin", idioma: "pt" });
+  await auth.setCustomUserClaims(userRecord.uid, { role, name: nome });
+  await db.collection("users").doc(userRecord.uid).set({ nome, email, role, idioma: "pt" });
 
-  console.log(`Papel "admin" garantido para ${email} em [${target}].`);
+  console.log(`Papel "${role}" garantido para ${email} em [${target}].`);
   process.exit(0);
 }
 
