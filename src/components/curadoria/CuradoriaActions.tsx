@@ -7,6 +7,8 @@ import type { SupportRequest } from "@/lib/types/domain";
 export function CuradoriaActions({ request }: { request: SupportRequest }) {
   const router = useRouter();
   const [textoPublico, setTextoPublico] = useState(request.textoPublico);
+  const [titulo, setTitulo] = useState(request.titulo);
+  const [meta, setMeta] = useState(request.meta > 0 ? String(request.meta) : "");
   const [mensagem, setMensagem] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,7 @@ export function CuradoriaActions({ request }: { request: SupportRequest }) {
       const res = await fetch(`/api/curadoria/${request.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, textoPublico, mensagem }),
+        body: JSON.stringify({ action, textoPublico, mensagem, titulo, meta: Number(meta) }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -34,6 +36,28 @@ export function CuradoriaActions({ request }: { request: SupportRequest }) {
 
   return (
     <div>
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_180px]">
+        <label className="text-[11.5px] font-semibold uppercase tracking-wider text-muted">
+          Título público da campanha
+          <input
+            value={titulo}
+            maxLength={140}
+            onChange={(e) => setTitulo(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-[13.5px] normal-case tracking-normal text-ink outline-none focus:border-primary"
+          />
+        </label>
+        <label className="text-[11.5px] font-semibold uppercase tracking-wider text-muted">
+          Meta (R$)
+          <input
+            type="number"
+            min={1}
+            step="0.01"
+            value={meta}
+            onChange={(e) => setMeta(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-[13.5px] text-ink outline-none focus:border-primary"
+          />
+        </label>
+      </div>
       <h4 className="mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-muted">
         Texto público revisado pela curadoria
       </h4>
@@ -72,7 +96,7 @@ export function CuradoriaActions({ request }: { request: SupportRequest }) {
           onClick={() => runAction("aprovar")}
           className="rounded-[10px] bg-primary px-4.5 py-2.5 text-[13px] font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
         >
-          {loading === "aprovar" ? "Publicando…" : "Aprovar e publicar"}
+          {loading === "aprovar" ? "Aprovando…" : "Aprovar para publicação"}
         </button>
       </div>
     </div>

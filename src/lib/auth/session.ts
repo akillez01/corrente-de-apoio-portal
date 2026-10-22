@@ -14,7 +14,7 @@ export interface SessionUser {
 }
 
 export async function getSessionUser(): Promise<SessionUser | null> {
-  const token = cookies().get(SESSION_COOKIE)?.value;
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
 
   try {

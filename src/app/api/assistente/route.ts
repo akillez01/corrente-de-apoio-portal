@@ -12,7 +12,15 @@ export async function POST(req: Request) {
     const ctaLabel = typeof body.ctaLabel === "string" ? body.ctaLabel : "";
     const ctaHref = typeof body.ctaHref === "string" ? body.ctaHref : "";
 
-    if (!interactionId || !ctaLabel || !ctaHref) {
+    if (
+      !interactionId ||
+      !ctaLabel ||
+      !ctaHref ||
+      interactionId.length > 128 ||
+      intent.length > 80 ||
+      ctaLabel.length > 160 ||
+      ctaHref.length > 2_048
+    ) {
       return NextResponse.json({ error: "Dados de clique incompletos." }, { status: 400 });
     }
 
@@ -36,7 +44,7 @@ export async function POST(req: Request) {
 
   const message = typeof body.message === "string" ? body.message.trim() : "";
 
-  if (!message) {
+  if (!message || message.length > 1_000) {
     return NextResponse.json({ error: "Mensagem obrigatoria." }, { status: 400 });
   }
 

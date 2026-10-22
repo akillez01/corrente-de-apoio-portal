@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface AssistantReply {
   intent: string;
@@ -11,11 +11,11 @@ interface AssistantReply {
 }
 
 const QUICK_PROMPTS = [
-  "Quero fazer uma doacao",
-  "Preciso solicitar apoio",
-  "Quero ser voluntario",
-  "Tenho uma parceria para propor",
-  "Como funciona a transparencia",
+  "Preciso de apoio",
+  "Quero ser voluntário",
+  "Como apoiar campanhas?",
+  "Quero propor um projeto",
+  "Como funciona a transparência?",
 ];
 
 export function AssistenteVirtualWidget() {
@@ -25,6 +25,45 @@ export function AssistenteVirtualWidget() {
   const [reply, setReply] = useState<AssistantReply | null>(null);
   const [interactionId, setInteractionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [footerVisible, setFooterVisible] = useState(false);
+  const [mobileFloatingVisible, setMobileFloatingVisible] = useState(false);
+
+  useEffect(() => {
+    function openAssistant() {
+      setOpen(true);
+    }
+    window.addEventListener("daime:open-assistant", openAssistant);
+    return () => window.removeEventListener("daime:open-assistant", openAssistant);
+  }, []);
+
+  useEffect(() => {
+    const footer = document.getElementById("site-footer");
+    if (!footer || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { threshold: 0.05 },
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const mobileViewport = window.matchMedia("(max-width: 639px)");
+    function updateVisibility() {
+      setMobileFloatingVisible(!mobileViewport.matches || window.scrollY > 240);
+    }
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    window.addEventListener("resize", updateVisibility);
+    return () => {
+      window.removeEventListener("scroll", updateVisibility);
+      window.removeEventListener("resize", updateVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (footerVisible) setOpen(false);
+  }, [footerVisible]);
 
   async function ask(text: string) {
     const content = text.trim();
@@ -41,13 +80,15 @@ export function AssistenteVirtualWidget() {
 
       const result = await response.json();
       if (!response.ok) {
-        setError(result.error ?? "Nao foi possivel responder agora.");
+        setError(result.error ?? "Não foi possível responder agora.");
         return;
       }
 
       setReply(result.reply);
       setInteractionId(typeof result.interactionId === "string" ? result.interactionId : null);
       setMessage("");
+    } catch {
+      setError("Falha de conexão. Tente novamente.");
     } finally {
       setLoading(false);
     }
@@ -71,17 +112,17 @@ export function AssistenteVirtualWidget() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-[400] w-[min(92vw,380px)]">
+    <div className={`fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-[max(1rem,env(safe-area-inset-right))] z-[400] w-[min(92vw,380px)] ${footerVisible && !open ? "pointer-events-none invisible" : ""} ${!mobileFloatingVisible ? "max-sm:hidden" : ""}`}>
       {open && (
         <div className="mb-3 overflow-hidden rounded-2xl border border-[#D4E1DA] bg-white shadow-[0_20px_48px_rgba(18,43,33,.22)]">
           <div className="bg-[#113A2B] px-4 py-3 text-white">
-            <h3 className="font-serif text-lg font-semibold">Assistente Rede Sol</h3>
+            <h3 className="font-serif text-lg font-semibold">Assistente ICEFLU</h3>
             <p className="text-[12px] text-white/80">
               Orientacao para doacao, pedidos, voluntariado e atendimento social.
             </p>
           </div>
 
-          <div className="max-h-[58vh] overflow-auto p-4">
+          <div className="max-h-[min(58vh,calc(100dvh-13rem))] overflow-auto p-4">
             {!reply && (
               <div className="mb-3 rounded-xl border border-[#E7D7B4] bg-[#FFF8E9] p-3 text-[13px] text-[#6A5224]">
                 Escreva sua duvida ou toque em um atalho.
@@ -92,6 +133,7 @@ export function AssistenteVirtualWidget() {
               {QUICK_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
+                  type="button"
                   disabled={loading}
                   onClick={() => ask(prompt)}
                   className="rounded-lg border border-border bg-bg px-2.5 py-1.5 text-left text-[12px] text-[#1E3A2E] transition hover:border-primary disabled:opacity-60"
@@ -127,7 +169,7 @@ export function AssistenteVirtualWidget() {
               </div>
             )}
 
-            {error && <p className="mt-2 text-[12.5px] text-urgent">{error}</p>}
+            {error && <p role="alert" className="mt-2 text-[12.5px] text-urgent">{error}</p>}
           </div>
 
           <form
@@ -142,7 +184,7 @@ export function AssistenteVirtualWidget() {
                 value={message}
                 onChange={(event) => setMessage(event.target.value)}
                 placeholder="Ex.: preciso de apoio urgente"
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-primary"
+                className="w-full min-w-0 rounded-lg border border-border px-3 py-2 text-base outline-none focus:border-primary sm:text-sm"
               />
               <button
                 type="submit"
@@ -158,9 +200,12 @@ export function AssistenteVirtualWidget() {
 
       <button
         onClick={() => setOpen((value) => !value)}
-        className="ml-auto flex rounded-full bg-[#C8831F] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(200,131,31,.42)] transition hover:bg-[#AD721A]"
+        aria-label={open ? "Fechar assistente" : "Abrir assistente de ajuda"}
+        aria-expanded={open}
+        className="ml-auto flex rounded-full bg-[#C8831F] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(200,131,31,.42)] transition hover:bg-[#AD721A] max-sm:h-12 max-sm:w-12 max-sm:justify-center max-sm:px-0 max-sm:py-0"
       >
-        {open ? "Fechar assistente" : "Precisa de ajuda?"}
+        <span className="sm:hidden" aria-hidden="true">{open ? "×" : "?"}</span>
+        <span className="hidden sm:inline">{open ? "Fechar assistente" : "Precisa de ajuda?"}</span>
       </button>
     </div>
   );

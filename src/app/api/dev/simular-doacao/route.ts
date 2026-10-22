@@ -13,13 +13,16 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   const campaignId = typeof body.campaignId === "string" ? body.campaignId : null;
-  const valor = typeof body.valor === "number" && body.valor > 0 ? body.valor : null;
+  const valor =
+    typeof body.valor === "number" && Number.isFinite(body.valor) && body.valor > 0 && body.valor <= 1_000_000
+      ? body.valor
+      : null;
   const metodo: DonationMethod | null = body.metodo === "pix" || body.metodo === "paypal" ? body.metodo : null;
   const nome = typeof body.nome === "string" && body.nome.trim() ? body.nome.trim() : null;
 
-  if (!campaignId || !valor || !metodo) {
+  if (!campaignId || campaignId.length > 128 || !valor || !metodo) {
     return NextResponse.json({ error: "Parâmetros inválidos." }, { status: 400 });
   }
 

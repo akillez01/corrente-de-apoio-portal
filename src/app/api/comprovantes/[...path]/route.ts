@@ -3,10 +3,15 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { readFile } from "@/lib/storage/localStorage";
 
+function downloadName(name: string) {
+  return name.replace(/[\r\n"\\]/g, "_").slice(0, 120) || "comprovante";
+}
+
 // Comprovante de repasse: público quando a campanha já tem prestação de contas
 // divulgada (é conteúdo público por definição); antes disso, só financeiro/admin.
-export async function GET(_req: Request, { params }: { params: { path: string[] } }) {
-  const [campaignId, ...rest] = params.path;
+export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
+  const { path } = await params;
+  const [campaignId, ...rest] = path;
   const filename = rest.join("/");
   if (!campaignId || !filename) {
     return NextResponse.json({ error: "Caminho inválido." }, { status: 400 });
@@ -40,8 +45,10 @@ export async function GET(_req: Request, { params }: { params: { path: string[] 
   const buffer = await readFile(storagePath);
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
-      "Content-Disposition": `inline; filename="${filename}"`,
+      "Content-Type": "application/octet-stream",
+      "Content-Disposition": `attachment; filename="${downloadName(filename)}"`,
       "Cache-Control": campaign.status === "prestacao_publicada" ? "public, max-age=3600" : "private, no-store",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

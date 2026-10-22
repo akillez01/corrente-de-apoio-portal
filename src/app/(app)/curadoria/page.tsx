@@ -69,7 +69,7 @@ export default async function CuradoriaFilaPage() {
                 <div className="text-xs text-muted">{request.requerenteNome}</div>
               </div>
               <div className="text-muted">{request.categoria}</div>
-              <div className="font-mono text-[12.5px]">R$ {formatBRL(request.meta)}</div>
+              <div className="font-mono text-[12.5px]">{request.meta > 0 ? `R$ ${formatBRL(request.meta)}` : "a definir"}</div>
               <div>
                 <StatusChip status={request.status} />
               </div>
@@ -85,9 +85,8 @@ export default async function CuradoriaFilaPage() {
       )}
 
       <p className="mt-3.5 text-[12.5px] text-muted">
-        Fluxo: submetido → em análise → em alinhamento (contato com o requerente) → aprovado →
-        publicado. Toda transição fica registrada no log de auditoria com autor, horário e
-        hash do registro anterior.
+        Fluxo: submetido → análise/alinhamento → aprovação da curadoria → publicação separada
+        por outra conta na área de conteúdo. Só campanhas publicadas aparecem no portal.
       </p>
     </div>
   );

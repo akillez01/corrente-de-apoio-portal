@@ -1,4 +1,6 @@
 import { CreateUserForm } from "@/components/admin/CreateUserForm";
+import { DeleteUserButton } from "@/components/admin/DeleteUserButton";
+import { ResetPasswordButton } from "@/components/admin/ResetPasswordButton";
 import { RoleSelect } from "@/components/admin/RoleSelect";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { requireRole } from "@/lib/auth/session";
@@ -15,7 +17,7 @@ function toRoleCount(users: Awaited<ReturnType<typeof listUsers>>) {
       acc[user.role] += 1;
       return acc;
     },
-    { requerente: 0, curador: 0, financeiro: 0, admin: 0 },
+    { requerente: 0, curador: 0, assistente_social: 0, financeiro: 0, editor_conteudo: 0, admin: 0 },
   );
 }
 
@@ -92,7 +94,9 @@ export default async function AdminUsuariosPage() {
           <div className="grid grid-cols-2 gap-2 text-[13px]">
             <div className="rounded-lg border border-border bg-bg p-3">Requerente: {roles.requerente}</div>
             <div className="rounded-lg border border-border bg-bg p-3">Curadoria: {roles.curador}</div>
+            <div className="rounded-lg border border-border bg-bg p-3">Serviço Social: {roles.assistente_social}</div>
             <div className="rounded-lg border border-border bg-bg p-3">Financeiro: {roles.financeiro}</div>
+            <div className="rounded-lg border border-border bg-bg p-3">Editor de conteúdo: {roles.editor_conteudo}</div>
             <div className="rounded-lg border border-border bg-bg p-3">Admin: {roles.admin}</div>
           </div>
         </div>
@@ -169,22 +173,29 @@ export default async function AdminUsuariosPage() {
 
       <CreateUserForm />
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-white">
-        <div className="grid grid-cols-[2fr_1.4fr_1fr] gap-3 bg-bg px-4.5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+        <div className="min-w-[760px]">
+        <div className="grid grid-cols-[2fr_1.4fr_1.2fr_auto] gap-3 bg-bg px-4.5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
           <span>Nome</span>
           <span>E-mail</span>
           <span>Papel</span>
+          <span>Acoes</span>
         </div>
         {users.map((u) => (
           <div
             key={u.uid}
-            className="grid grid-cols-[2fr_1.4fr_1fr] items-center gap-3 border-b border-border px-4.5 py-3 text-[13.5px] last:border-b-0"
+            className="grid grid-cols-[2fr_1.4fr_1.2fr_auto] items-center gap-3 border-b border-border px-4.5 py-3 text-[13.5px] last:border-b-0"
           >
             <span className="font-semibold">{u.nome}</span>
             <span className="font-mono text-[12px] text-muted">{u.email}</span>
             <RoleSelect uid={u.uid} role={u.role} disabled={u.uid === user.uid} />
+            <div className="flex flex-wrap items-center gap-2">
+              <ResetPasswordButton uid={u.uid} nome={u.nome} disabled={u.uid === user.uid} />
+              <DeleteUserButton uid={u.uid} nome={u.nome} disabled={u.uid === user.uid} />
+            </div>
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

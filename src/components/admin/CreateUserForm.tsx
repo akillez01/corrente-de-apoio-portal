@@ -4,14 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/types/domain";
 
-const ROLES: Role[] = ["requerente", "curador", "financeiro", "admin"];
+const ROLES: Role[] = ["requerente", "curador", "assistente_social", "financeiro", "editor_conteudo", "admin"];
+const ROLE_LABELS: Record<Role, string> = {
+  requerente: "requerente",
+  curador: "curador",
+  assistente_social: "Assistente social",
+  financeiro: "financeiro",
+  editor_conteudo: "Editor de conteúdo",
+  admin: "admin",
+};
 
 export function CreateUserForm() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<Role>("curador");
+  const [role, setRole] = useState<Role>("editor_conteudo");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [created, setCreated] = useState<{ email: string; senha: string } | null>(null);
@@ -34,7 +42,7 @@ export function CreateUserForm() {
       setCreated({ email, senha: data.senhaTemporaria });
       setNome("");
       setEmail("");
-      setRole("curador");
+      setRole("editor_conteudo");
       router.refresh();
     } finally {
       setLoading(false);
@@ -107,7 +115,7 @@ export function CreateUserForm() {
             >
               {ROLES.map((r) => (
                 <option key={r} value={r}>
-                  {r}
+                  {ROLE_LABELS[r]}
                 </option>
               ))}
             </select>

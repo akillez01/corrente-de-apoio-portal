@@ -34,3 +34,16 @@ export async function getRequestsByRequerente(requerenteId: string): Promise<Sup
     .map((doc) => ({ id: doc.id, ...doc.data() }) as SupportRequest)
     .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm));
 }
+
+// Fila do Serviço Social: todos os cadastros não arquivados, urgentes primeiro.
+export async function getRequestsForSocialWork(): Promise<SupportRequest[]> {
+  const snapshot = await getAdminDb().collection("requests").get();
+
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as SupportRequest)
+    .filter((request) => request.status !== "arquivado")
+    .sort((a, b) => {
+      if (a.urgente !== b.urgente) return a.urgente ? -1 : 1;
+      return b.criadoEm.localeCompare(a.criadoEm);
+    });
+}

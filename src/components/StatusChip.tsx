@@ -8,7 +8,7 @@ const STATUS_STYLE: Record<
   submetido: { label: "Submetido", bg: "#F0F0F0", fg: "#555555", border: "#DDDDDD" },
   em_analise: { label: "Em análise", bg: "#FDF3DC", fg: "#8A6414", border: "#EBD9A8" },
   em_alinhamento: { label: "Em alinhamento", bg: "#E3EEFB", fg: "#2B5AA0", border: "#C4D9F2" },
-  aprovado: { label: "Aprovado", bg: "#EDF6EF", fg: "#2F6B4F", border: "#CBE3D2" },
+  aprovado: { label: "Aprovado para publicação", bg: "#EDF6EF", fg: "#2F6B4F", border: "#CBE3D2" },
   publicado: { label: "Publicado", bg: "#EDF6EF", fg: "#2F6B4F", border: "#CBE3D2" },
   meta_atingida: { label: "Meta atingida", bg: "#FDF3DC", fg: "#8A6414", border: "#EBD9A8" },
   prazo_encerrado: { label: "Prazo encerrado", bg: "#F0F0F0", fg: "#555555", border: "#DDDDDD" },

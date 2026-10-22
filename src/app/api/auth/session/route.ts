@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { SESSION_COOKIE } from "@/lib/auth/session";
+import { sendSystemEmailNotification } from "@/lib/notifications/systemEmail";
 
 // Guarda o ID Token do Firebase em um cookie httpOnly. Em produção isso deveria
 // evoluir para um cookie de sessão com refresh; para o MVP local o ID token
@@ -34,7 +35,15 @@ export async function POST(req: Request) {
     }
   }
 
-  const res = NextResponse.json({ ok: true, provisioned });
+  const notificationSent = provisioned
+    ? await sendSystemEmailNotification({
+        event: "nova conta",
+        recordId: decoded.uid,
+        path: "/admin/usuarios",
+      })
+    : null;
+
+  const res = NextResponse.json({ ok: true, provisioned, notificationSent });
   res.cookies.set(SESSION_COOKIE, idToken, {
     httpOnly: true,
     sameSite: "lax",

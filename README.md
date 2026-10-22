@@ -1,7 +1,9 @@
-# Corrente de Apoio — Portal de campanhas de apoio social (ICEFLU)
+# Portal Daime Solidariedade
 
-Aplicação Next.js 14 (App Router) + TypeScript + Tailwind + Firebase, implementando
-o portal descrito em `docs/especificacao-tecnica.md`.
+Aplicação Next.js 15 (App Router) + TypeScript + Tailwind + Firebase para conectar pessoas,
+capacidades, necessidades, campanhas, projetos e oportunidades em uma rede de cuidado e
+colaboração da ICEFLU. A arquitetura funcional da nova experiência está em
+`docs/arquitetura-daime-solidariedade.md`.
 
 ## Conteúdo do repositório
 
@@ -16,12 +18,31 @@ o portal descrito em `docs/especificacao-tecnica.md`.
 
 ## Desenvolvimento local
 
+Requisitos: Node.js 20 ou superior e Firebase CLI.
+
+Inicie os emuladores em um terminal:
+
+```bash
+firebase emulators:start --only auth,firestore --project corrente-de-apoio
+```
+
+Em outro terminal, instale as dependências e inicie o portal:
+
 ```bash
 npm install
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000).
+Abra [http://localhost:3000/pt](http://localhost:3000/pt). A página inicial e as campanhas
+leem o Firestore Emulator na porta configurada em `.env.local`.
+
+## Produção
+
+O portal está publicado na Vercel em [www.daimesolidariedade.org](https://www.daimesolidariedade.org).
+O domínio raiz [daimesolidariedade.org](https://daimesolidariedade.org) redireciona para `www`.
+O deploy de produção foi validado em 2026-10-12. Os avisos de novos cadastros por e-mail ainda
+dependem da configuração do Resend e das variáveis de produção; detalhes operacionais,
+domínios autorizados no Firebase e checklist estão em `docs/deploy-vercel.md`.
 
 Para ver o protótipo visual original (referência de design):
 
@@ -31,5 +52,5 @@ npx serve prototipo
 
 ## Estado do projeto
 
-Em desenvolvimento — ver `docs/especificacao-tecnica.md` (seção "Entrega em fases") para
-o escopo da Fase 1 (MVP) e os critérios de aceite.
+Em evolução contínua, com produção publicada — ver `docs/especificacao-tecnica.md` (seção
+"Entrega em fases") para o escopo da Fase 1 (MVP) e os critérios de aceite.

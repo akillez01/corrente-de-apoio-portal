@@ -12,6 +12,6 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const port = process.env.PORT || 3000;
   createServer((req, res) => handle(req, res)).listen(port, () => {
-    console.log(`Corrente de Apoio Portal ouvindo na porta ${port}`);
+    console.log(`doar.iceflu.org ouvindo na porta ${port}`);
   });
 });

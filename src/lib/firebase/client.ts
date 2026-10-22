@@ -30,7 +30,7 @@ if (useEmulators && !globalThis.__cdaEmulatorsConnected) {
   // Em HMR/reloads parciais o app pode ja existir; conectamos os emuladores
   // aqui de forma idempotente para evitar fallback acidental para producao.
   connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });
-  connectFirestoreEmulator(db, "localhost", 8080);
+  connectFirestoreEmulator(db, "localhost", 8085);
   globalThis.__cdaEmulatorsConnected = true;
 }
 

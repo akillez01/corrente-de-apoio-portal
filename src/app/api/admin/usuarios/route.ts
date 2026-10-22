@@ -4,11 +4,11 @@ import { getSessionUser } from "@/lib/auth/session";
 import { getAdminAuth, getAdminDb } from "@/lib/firebase/admin";
 import { appendAuditLog } from "@/lib/audit";
 import type { Role } from "@/lib/types/domain";
+import { sendSystemEmailNotification } from "@/lib/notifications/systemEmail";
 
-const VALID_ROLES: Role[] = ["requerente", "curador", "financeiro", "admin"];
+const VALID_ROLES: Role[] = ["requerente", "curador", "assistente_social", "financeiro", "editor_conteudo", "admin"];
 
-// Cria uma conta já com papel definido — usado para dar acesso a curadoria/financeiro/
-// admin sem depender de autocadastro (que só concede "requerente", ver /api/auth/session).
+// Cria uma conta já com papel definido — papéis operacionais não são autoatribuíveis.
 export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user || user.role !== "admin") {
@@ -55,5 +55,11 @@ export async function POST(req: Request) {
     detalhes: { email, papel: role },
   });
 
-  return NextResponse.json({ ok: true, uid: userRecord.uid, senhaTemporaria });
+  const notificationSent = await sendSystemEmailNotification({
+    event: "nova conta criada pela administração",
+    recordId: userRecord.uid,
+    path: "/admin/usuarios",
+  });
+
+  return NextResponse.json({ ok: true, uid: userRecord.uid, senhaTemporaria, notificationSent });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_LABEL } from "@/lib/storage/limits";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -23,6 +24,10 @@ export function ConfirmarRepasseForm({
     e.preventDefault();
     if (!file) {
       setError("Anexe o comprovante do repasse.");
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setError(`O comprovante excede o limite de ${MAX_UPLOAD_LABEL}.`);
       return;
     }
     setLoading(true);
@@ -75,7 +80,7 @@ export function ConfirmarRepasseForm({
             />
           </label>
           <label className="text-[12.5px] font-semibold text-muted">
-            Comprovante do repasse (obrigatório)
+            Comprovante do repasse (obrigatório, até {MAX_UPLOAD_LABEL})
             <input
               type="file"
               required

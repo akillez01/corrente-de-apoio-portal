@@ -19,8 +19,14 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rede Sol",
-  description: "Rede Sol: apoio social e de saude na Amazonia com transparencia e doacao direta.",
+  metadataBase: new URL("https://daimesolidariedade.org"),
+  title: {
+    default: "Daime Solidariedade | Rede de cuidado e colaboração",
+    template: "%s | Daime Solidariedade",
+  },
+  description:
+    "Uma rede para conectar pessoas, capacidades, recursos, projetos e oportunidades em solidariedade com as comunidades.",
+  alternates: { canonical: "/pt" },
   icons: {
     icon: [
       {

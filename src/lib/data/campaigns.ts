@@ -28,6 +28,33 @@ export async function getPublicCampaigns(): Promise<Campaign[]> {
 
   return snapshot.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }) as Campaign)
+    .sort(byPublicationDesc);
+}
+
+// Todas as campanhas que já passaram pela publicação, para a página de Transparência.
+export async function getCampaignsForTransparency(): Promise<Campaign[]> {
+  const snapshot = await getAdminDb()
+    .collection("campaigns")
+    .where("status", "in", VISIBLE_ON_DETAIL_STATUSES)
+    .get();
+
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as Campaign)
+    .sort(byPublicationDesc);
+}
+
+function byPublicationDesc(a: Campaign, b: Campaign) {
+  return (b.publicadoEm ?? b.criadoEm).localeCompare(a.publicadoEm ?? a.criadoEm);
+}
+
+export async function getCampaignsAwaitingPublication(): Promise<Campaign[]> {
+  const snapshot = await getAdminDb()
+    .collection("campaigns")
+    .where("status", "==", "aprovado")
+    .get();
+
+  return snapshot.docs
+    .map((doc) => ({ id: doc.id, ...doc.data() }) as Campaign)
     .sort((a, b) => b.atualizadoEm.localeCompare(a.atualizadoEm));
 }
 

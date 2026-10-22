@@ -1,27 +1,21 @@
 "use client";
 
+import { establishSession } from "@/lib/auth/clientSession";
 import { auth, googleProvider } from "@/lib/firebase/client";
 import type { Role } from "@/lib/types/domain";
-import { signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
+import { sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, type User } from "firebase/auth";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 const LANDING_BY_ROLE: Record<Role, string> = {
   curador: "/curadoria",
+  assistente_social: "/servico-social",
   financeiro: "/financeiro",
+  editor_conteudo: "/admin/conteudo",
   admin: "/admin/usuarios",
   requerente: "/meus-pedidos",
 };
-
-const DEMO_USERS = [
-  { email: "curadoria@corrente.dev", papel: "curador — Ana Meirelles" },
-  { email: "financeiro@corrente.dev", papel: "financeiro — Marcos D'Ávila" },
-  { email: "admin@corrente.dev", papel: "admin — Beatriz Nogueira" },
-  { email: "requerente@corrente.dev", papel: "requerente — Joana Ribeiro" },
-];
-const DEMO_PASSWORD = "senha123";
-const SHOW_DEMO_USERS = process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === "true";
 
 export function LoginForm() {
   const router = useRouter();
@@ -33,35 +27,13 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(
     erro === "acesso-negado" ? "Você não tem papel autorizado para acessar essa área." : null,
   );
 
-  // Envia o idToken pro backend, que provisiona papel "requerente" no primeiro
-  // login (ex: cadastro via Google). Nesse caso o idToken já em mãos ainda não
-  // carrega o custom claim novo, então força um refresh e reenvia antes de seguir.
-  async function establishSession(user: User) {
-    const idToken = await user.getIdToken();
-    const res = await fetch("/api/auth/session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
-    });
-    if (!res.ok) throw new Error("Não foi possível criar a sessão.");
-    const { provisioned } = await res.json();
-
-    let tokenResult = await user.getIdTokenResult();
-    if (provisioned) {
-      const freshIdToken = await user.getIdToken(true);
-      await fetch("/api/auth/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken: freshIdToken }),
-      });
-      tokenResult = await user.getIdTokenResult(true);
-    }
-
-    const role = tokenResult.claims.role as Role | undefined;
+  async function finishSignIn(user: User) {
+    const role = await establishSession(user);
     router.push(next ?? (role ? LANDING_BY_ROLE[role] : "/pt"));
     router.refresh();
   }
@@ -72,7 +44,7 @@ export function LoginForm() {
     setError(null);
     try {
       const credential = await signInWithEmailAndPassword(auth, email, password);
-      await establishSession(credential.user);
+      await finishSignIn(credential.user);
     } catch {
       setError("E-mail ou senha inválidos.");
     } finally {
@@ -80,22 +52,36 @@ export function LoginForm() {
     }
   }
 
+  // Mensagem genérica de propósito: não revela se o e-mail tem cadastro.
+  async function handleForgotPassword() {
+    setError(null);
+    setInfo(null);
+    if (!email) {
+      setError("Informe seu e-mail acima para receber o link de redefinição.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (err) {
+      if ((err as { code?: string }).code === "auth/too-many-requests") {
+        setError("Muitas tentativas. Aguarde alguns minutos e tente de novo.");
+        return;
+      }
+    }
+    setInfo("Se houver uma conta com esse e-mail, enviamos um link para redefinir a senha. Confira o spam.");
+  }
+
   async function handleGoogleSignIn() {
     setGoogleLoading(true);
     setError(null);
     try {
       const credential = await signInWithPopup(auth, googleProvider);
-      await establishSession(credential.user);
+      await finishSignIn(credential.user);
     } catch {
       setError("Não foi possível entrar com Google.");
     } finally {
       setGoogleLoading(false);
     }
-  }
-
-  function fillDemo(demoEmail: string) {
-    setEmail(demoEmail);
-    setPassword(DEMO_PASSWORD);
   }
 
   return (
@@ -104,7 +90,7 @@ export function LoginForm() {
         ← Voltar ao portal
       </Link>
       <h1 className="mb-1 font-serif text-2xl font-semibold">Entrar</h1>
-      <p className="mb-6 text-sm text-muted">Acesso à área interna — Rede Sol</p>
+      <p className="mb-6 text-sm text-muted">Acesso à área interna — Daime Solidariedade</p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
@@ -124,12 +110,20 @@ export function LoginForm() {
           className="rounded-lg border border-border bg-white px-3.5 py-2.5 text-sm outline-none focus:border-primary"
         />
         {error && <p className="text-[13px] text-urgent">{error}</p>}
+        {info && <p className="text-[13px] text-green-700">{info}</p>}
         <button
           type="submit"
           disabled={loading}
           className="mt-1 rounded-[10px] bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-60"
         >
           {loading ? "Entrando…" : "Entrar"}
+        </button>
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          className="w-fit text-[13px] text-muted underline transition hover:text-ink"
+        >
+          Esqueci minha senha
         </button>
       </form>
 
@@ -156,31 +150,6 @@ export function LoginForm() {
       <p className="mt-3 text-center text-[11.5px] text-muted">
         Novo por aqui? Entrar com Google cria seu cadastro automaticamente.
       </p>
-
-      {SHOW_DEMO_USERS && (
-        <div className="mt-8 rounded-xl border border-border bg-bg p-4">
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted">
-            Usuários de demonstração (ambiente local)
-          </h2>
-          <div className="flex flex-col gap-1.5">
-            {DEMO_USERS.map((u) => (
-              <button
-                key={u.email}
-                type="button"
-                onClick={() => fillDemo(u.email)}
-                className="rounded-lg border border-border bg-white px-3 py-2 text-left text-[12.5px] transition hover:border-primary"
-              >
-                <span className="font-medium">{u.papel}</span>
-                <br />
-                <span className="font-mono text-[11.5px] text-muted">{u.email}</span>
-              </button>
-            ))}
-          </div>
-          <p className="mt-2 text-[11.5px] text-muted">
-            Senha para todos: <span className="font-mono">{DEMO_PASSWORD}</span>
-          </p>
-        </div>
-      )}
     </div>
   );
 }

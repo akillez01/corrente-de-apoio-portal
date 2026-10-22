@@ -1,16 +1,28 @@
-# Inventário de telas — do protótipo para o Next.js
 
-| Tela no protótipo | Rota sugerida (App Router) | Acesso | Notas de implementação |
-|---|---|---|---|
-| Portal público | `app/[locale]/page.tsx` | público | Lista `campaigns` com `status in [publicado, meta_atingida, prestacao_publicada]`. Cache ISR + revalidação por webhook. |
-| Campanha (detalhe) | `app/[locale]/campanha/[slug]/page.tsx` | público | Progresso em tempo real via listener no doc da campanha. Botões Pix/PayPal criam a preferência no PSP. |
-| Prestação de contas | seção da mesma rota, quando `status = prestacao_publicada` | público | Extrato + comprovante do `transfers` correspondente. |
-| Como funciona | `app/[locale]/como-funciona/page.tsx` | público | Conteúdo estático traduzido. |
-| Curadoria — fila | `app/(app)/curadoria/page.tsx` | `curador`, `admin` | Query em `requests` ordenada por urgência e data. |
-| Curadoria — pedido | `app/(app)/curadoria/[id]/page.tsx` (modal no protótipo) | `curador`, `admin` | Anexos por signed URL de curta duração. Texto público é campo separado do texto bruto. |
-| Financeiro — repasses | `app/(app)/financeiro/page.tsx` | `financeiro`, `admin` | Botão "Confirmar repasse" desabilitado até `comprovante` existir; validação repetida na Cloud Function. |
-| Dashboard do requerente | `app/(app)/meus-pedidos/page.tsx` | `requerente` | Não existe no protótipo — desenhar na Fase 1. |
-| Admin de usuários | `app/(app)/admin/usuarios/page.tsx` | `admin` | Não existe no protótipo — desenhar na Fase 1. |
+
+
+# Inventário de telas — Portal Daime Solidariedade
+
+| Tela / aba | Rota App Router | Acesso | Estado |
+| --- | --- | --- | --- |
+| Início | `app/[locale]/page.tsx` | Público | Apresentação do portal e seção “Nossa identidade” com os seis princípios/orientações, abaixo do destaque principal; CTA para integrar a rede. |
+| Preciso de apoio | `app/[locale]/preciso-de-apoio/page.tsx` | Público; pedido exige login | Implementado; CTA segue para o formulário autenticado já existente. |
+| Voluntariado | `app/[locale]/voluntarios/page.tsx` | Público | Formulário de voluntariado existente, integrado à navegação. |
+| Novo pedido de apoio | `app/(app)/meus-pedidos/novo/page.tsx` | Requerente autenticado | Formulário completo com dados de contato, categoria, meta, prazo, urgência, descrição, anexos até 4 MB e consentimento LGPD; detalhes em `docs/arquitetura-daime-solidariedade.md`. |
+| Campanhas | `app/[locale]/campanhas/page.tsx` | Público | Implementado; lista apenas campanhas públicas existentes e mostra estado vazio. |
+| Campanha (detalhe) | `app/[locale]/campanha/[slug]/page.tsx` | Público | Página de campanha existente. Verificar disponibilidade do pagamento real antes de ativá-lo. |
+| Como funciona | `app/[locale]/como-funciona/page.tsx` | Público | Implementado com fluxo institucional, sem afirmar capacidades ainda não comprovadas. |
+| Projetos | `app/[locale]/projetos/page.tsx` | Público | Página de apresentação; cadastro digital ainda pendente. |
+| Mulheres | `app/[locale]/mulheres/page.tsx` | Público | Frente apresentada como em construção. |
+| Juventude | `app/[locale]/juventude/page.tsx` | Público | Frente apresentada como em construção, com nota de salvaguardas. |
+| Transparência | `app/[locale]/transparencia/page.tsx` | Público | Compromissos e ligação a campanhas; não inventa métricas nem auditorias. |
+| Curadoria — fila | `app/(app)/curadoria/page.tsx` | `curador`, `admin` | Área autenticada existente. |
+| Curadoria — pedido | `app/(app)/curadoria/[id]/page.tsx` | `curador`, `admin` | Área autenticada existente. |
+| Financeiro — repasses | `app/(app)/financeiro/page.tsx` | `financeiro`, `admin` | Área financeira existente. |
+| Dashboard do requerente | `app/(app)/meus-pedidos/page.tsx` | `requerente` | Área autenticada existente. |
+| Admin de usuários | `app/(app)/admin/usuarios/page.tsx` | `admin` | Área administrativa existente. |
+| Editor de conteúdo | `app/(app)/admin/conteudo/page.tsx` | `editor_conteudo`, `admin` | Edita textos e imagens das páginas públicas em PT/EN; formulários e conteúdo interno ficam protegidos. |
+| Publicação de campanhas | `app/(app)/admin/campanhas/page.tsx` | `editor_conteudo`, `admin` | Fila de campanhas já aprovadas pela curadoria; publicação exige UID diferente do aprovador. |
 
 ## Componentes reutilizáveis identificados
 
@@ -24,10 +36,16 @@
 - `NoticeBanner` — variantes âmbar (aviso) e verde (confirmação).
 - `LangSwitcher` — PT/EN/ES.
 
-## Pendências de design para a Fase 1
+O cabeçalho e o rodapé apresentam o contato `daimesolidariedade@gmail.com` e o link do
+Instagram do portal.
 
-- Formulário de submissão de pedido (com consentimento LGPD e upload de anexos)
-- Dashboard do requerente (acompanhamento do pedido e das mensagens da curadoria)
-- Admin de usuários e papéis
-- Estados vazios, erro e carregamento de cada tela
-- Versões en/es das strings
+## Próximas implementações
+
+- Fluxo de atendimento do Serviço Social com registro técnico segregado e permissões próprias.
+- Proposta e gestão de projetos, Escritório de Projetos e oportunidades.
+- Governança e aprovação institucional configuráveis e auditáveis.
+- Revisão de segurança para coleta, exposição e retenção de dados no cadastro de voluntariado.
+- Teste funcional autenticado das novas rotas de edição e publicação; atribuição da role no Firebase.
+- Prestação de contas, painel financeiro e auditoria independente conforme decisões formais.
+- Traduções completas para inglês; rotas de campanha e comunicação existentes ainda precisam
+  de revisão de consistência com a nova identidade.

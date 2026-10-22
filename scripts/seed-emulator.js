@@ -27,8 +27,9 @@ const now = new Date().toISOString();
 const DEMO_PASSWORD = "senha123";
 const demoUsers = [
   { email: "curadoria@corrente.dev", nome: "Ana Meirelles", role: "curador" },
+  { email: "servicosocial@corrente.dev", nome: "Helena Prado", role: "assistente_social" },
   { email: "financeiro@corrente.dev", nome: "Marcos D'Ávila", role: "financeiro" },
-  { email: "admin@corrente.dev", nome: "Beatriz Nogueira", role: "admin" },
+  { email: "admin@corrente.dev", nome: "Iceflu Admin", role: "admin" },
   { email: "requerente@corrente.dev", nome: "Joana Ribeiro", role: "requerente" },
 ];
 

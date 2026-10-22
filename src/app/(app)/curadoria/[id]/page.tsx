@@ -6,9 +6,10 @@ import { CuradoriaActions } from "@/components/curadoria/CuradoriaActions";
 
 export const revalidate = 0;
 
-export default async function CuradoriaPedidoPage({ params }: { params: { id: string } }) {
+export default async function CuradoriaPedidoPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   await requireRole("curador", "admin");
-  const request = await getRequestById(params.id);
+  const request = await getRequestById(id);
   if (!request) notFound();
 
   return (
@@ -17,7 +18,7 @@ export default async function CuradoriaPedidoPage({ params }: { params: { id: st
         <div className="flex-1">
           <h1 className="font-serif text-xl font-semibold">{request.titulo}</h1>
           <div className="mt-1 font-mono text-xs text-muted">
-            {request.requerenteNome} · meta R$ {formatBRL(request.meta)}
+            {request.requerenteNome} · {request.meta > 0 ? `meta R$ ${formatBRL(request.meta)}` : "meta a definir"}
             {request.urgente ? " · urgente" : ""}
           </div>
         </div>
@@ -27,6 +28,60 @@ export default async function CuradoriaPedidoPage({ params }: { params: { id: st
         🔒 Área privada · anexos sensíveis visíveis apenas para curadoria e admin.
         Consentimento LGPD registrado em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}.
       </div>
+
+      {request.identificacao && (
+        <section className="mb-[18px] rounded-xl border border-border bg-white p-3.5 text-[12.5px]">
+          <h4 className="mb-2 font-semibold">Identificação e contato</h4>
+          <p>
+            {request.identificacao.nome}
+            {request.identificacao.nomeSocial
+              ? ` · nome social: ${request.identificacao.nomeSocial}`
+              : ""}
+            {request.identificacao.idade !== null && request.identificacao.idade !== undefined
+              ? ` · ${request.identificacao.idade} anos`
+              : ""}
+          </p>
+          <p className="text-muted">
+            {[request.identificacao.municipio, request.identificacao.territorio]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          <p className="text-muted">
+            Contato preferencial ({request.identificacao.formaContato}):{" "}
+            {request.identificacao.contato}
+          </p>
+        </section>
+      )}
+
+      {(request.formasOferta?.length ||
+        request.querParticipar ||
+        request.querConversarComServicoSocial) && (
+        <section className="mb-[18px] rounded-xl border border-border bg-white p-3.5 text-[12.5px]">
+          <h4 className="mb-2 font-semibold">Outras formas de participação</h4>
+          {request.formasOferta && request.formasOferta.length > 0 && (
+            <p>O que pode oferecer: {request.formasOferta.join(", ")}.</p>
+          )}
+          {request.querParticipar && <p>Também quer participar de projetos ou ações.</p>}
+          {request.detalhesOferta && <p className="mt-1">{request.detalhesOferta}</p>}
+          {request.querConversarComServicoSocial && (
+            <p className="mt-2">
+              Pediu para conversar com a equipe social sobre situação familiar ou
+              socioeconômica.
+            </p>
+          )}
+        </section>
+      )}
+
+      {request.categorias && request.categorias.length > 0 && (
+        <section className="mb-[18px] rounded-xl border border-border bg-white p-3.5 text-[12.5px]">
+          <h4 className="mb-2 font-semibold">Preciso de apoio em</h4>
+          <div className="flex flex-wrap gap-1.5">
+            {request.categorias.map((categoria) => (
+              <span key={categoria} className="rounded-full bg-bg px-2.5 py-1">{categoria}</span>
+            ))}
+          </div>
+        </section>
+      )}
 
       <h4 className="mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-muted">
         Anexos do requerente

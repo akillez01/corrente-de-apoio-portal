@@ -94,11 +94,11 @@ export const revalidate = 0;
 export default async function AdminAtendimentosAssistentePage({
   searchParams,
 }: {
-  searchParams?: { period?: string };
+  searchParams?: Promise<{ period?: string }>;
 }) {
   await requireRole("admin");
 
-  const period = parsePeriod(searchParams?.period);
+  const period = parsePeriod((await searchParams)?.period);
   const start = periodStart(period);
 
   const snapshot = await getAdminDb().collection("assistant_interactions").get();

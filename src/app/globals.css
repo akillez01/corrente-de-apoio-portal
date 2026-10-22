@@ -12,3 +12,99 @@
     text-wrap: balance;
   }
 }
+
+/* Camada de movimento (ver Guia de Movimento.md e src/lib/motion.ts) */
+[data-motion] {
+  opacity: 0;
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    clip-path 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-motion="reveal"] {
+  transform: translateY(24px);
+}
+
+[data-motion="mask"] {
+  clip-path: inset(0 0 100% 0);
+}
+
+[data-motion="zoom"] {
+  transform: scale(0.96);
+}
+
+[data-motion].visible {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 0% 0);
+}
+
+.js-nav {
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.js-nav.scrolled {
+  box-shadow: 0 8px 24px rgba(15, 45, 35, 0.18);
+}
+
+.js-nav-inner {
+  transition: padding 0.3s ease;
+}
+
+.js-nav.scrolled .js-nav-inner {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.js-nav-logo {
+  transition:
+    width 0.3s ease,
+    height 0.3s ease;
+}
+
+.js-nav.scrolled .js-nav-logo {
+  width: 2rem;
+  height: 2rem;
+}
+
+.js-nav-subtitle {
+  max-height: 20px;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.js-nav.scrolled .js-nav-subtitle {
+  max-height: 0;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    transition: none !important;
+  }
+
+  .js-nav,
+  .js-nav-inner,
+  .js-nav-logo,
+  .js-nav-subtitle {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}

@@ -8,8 +8,23 @@ import Link from "next/link";
 
 export const revalidate = 0;
 
-export default async function MeusPedidosPage() {
+const VISIBLE_CAMPAIGN_STATUSES = new Set([
+  "publicado",
+  "meta_atingida",
+  "prazo_encerrado",
+  "repasse_pendente",
+  "repassado",
+  "prestacao_publicada",
+  "encerrado",
+]);
+
+export default async function MeusPedidosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ enviado?: string }>;
+}) {
   const user = await requireRole("requerente", "admin");
+  const { enviado } = await searchParams;
   const requests = await getRequestsByRequerente(user.uid);
   const totalMeta = requests.reduce((acc, request) => acc + request.meta, 0);
   const emAndamento = requests.filter((request) =>
@@ -19,11 +34,16 @@ export default async function MeusPedidosPage() {
   const reprovados = requests.filter((request) => request.status === "reprovado").length;
   const totalMensagens = requests.reduce((acc, request) => acc + request.mensagens.length, 0);
 
-  const campaignsByRequest = new Map<string, string>();
+  const campaignsByRequest = new Map<string, { slug: string; public: boolean }>();
   for (const request of requests) {
     if (request.status === "aprovado") {
       const campaign = await getCampaignByRequestId(request.id);
-      if (campaign) campaignsByRequest.set(request.id, campaign.slug);
+      if (campaign) {
+        campaignsByRequest.set(request.id, {
+          slug: campaign.slug,
+          public: VISIBLE_CAMPAIGN_STATUSES.has(campaign.status),
+        });
+      }
     }
   }
 
@@ -35,14 +55,21 @@ export default async function MeusPedidosPage() {
           href="/meus-pedidos/novo"
           className="rounded-[10px] bg-primary px-4.5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
         >
-          + Novo pedido
+          + Novo cadastro
         </Link>
       </div>
+
+      {enviado && (
+        <p role="status" className="mb-5 rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
+          Cadastro recebido! O Serviço Social vai analisar seu caso e entrar em contato pela forma
+          que você escolheu. Acompanhe o andamento por aqui.
+        </p>
+      )}
 
       <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
         <KpiCard label="Pedidos enviados" value={String(requests.length)} />
         <KpiCard label="Em andamento" value={String(emAndamento)} />
-        <KpiCard label="Aprovados" value={String(aprovados)} />
+        <KpiCard label="Aprovados para publicação" value={String(aprovados)} />
         <KpiCard label="Reprovados" value={String(reprovados)} />
         <KpiCard
           label="Meta total"
@@ -62,14 +89,15 @@ export default async function MeusPedidosPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {requests.map((request) => {
-            const slug = campaignsByRequest.get(request.id);
+            const campaign = campaignsByRequest.get(request.id);
             return (
               <div key={request.id} className="rounded-2xl border border-border bg-white p-[18px]">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="font-serif text-lg font-semibold">{request.titulo}</h3>
                     <div className="mt-0.5 text-xs text-muted">
-                      {request.categoria} · meta R$ {formatBRL(request.meta)} · enviado em{" "}
+                      {(request.categorias ?? [request.categoria]).join(", ")}
+                      {request.meta > 0 ? ` · meta R$ ${formatBRL(request.meta)}` : ""} · enviado em{" "}
                       {new Date(request.criadoEm).toLocaleDateString("pt-BR")}
                     </div>
                   </div>
@@ -96,9 +124,15 @@ export default async function MeusPedidosPage() {
                   </div>
                 )}
 
-                {slug && (
+                {request.status === "aprovado" && campaign && !campaign.public && (
+                  <p className="mt-3 text-[12.5px] text-muted">
+                    Seu pedido foi aprovado para publicação. A equipe editorial está preparando a versão pública.
+                  </p>
+                )}
+
+                {campaign?.public && (
                   <Link
-                    href={`/pt/campanha/${slug}`}
+                    href={`/pt/campanha/${campaign.slug}`}
                     className="mt-3 inline-block rounded-lg border border-border bg-bg px-3.5 py-1.5 text-[12.5px] font-semibold transition hover:border-primary"
                   >
                     Ver campanha publicada →

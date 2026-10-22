@@ -1,4 +1,4 @@
-type Intent = "doacao" | "pedido" | "voluntariado" | "parceria" | "emergencia" | "transparencia" | "geral";
+type Intent = "doacao" | "pedido" | "voluntariado" | "parceria" | "emergencia" | "transparencia" | "campanha" | "geral";
 
 export interface AssistantReply {
   intent: Intent;
@@ -18,8 +18,27 @@ const INTENT_RULES: Array<{ intent: Intent; keywords: string[] }> = [
     keywords: ["pedido", "apoio", "ajuda", "preciso", "solicitar", "familia", "tratamento"],
   },
   {
+    intent: "campanha",
+    keywords: ["campanha", "campanhas", "aprovacao", "aprovada", "publicada", "publicacao"],
+  },
+  {
     intent: "voluntariado",
-    keywords: ["voluntario", "voluntariado", "inscricao", "participar", "servir", "habilidade"],
+    keywords: [
+      "voluntario",
+      "voluntariado",
+      "inscricao",
+      "participar",
+      "servir",
+      "habilidade",
+      "medico",
+      "enfermeiro",
+      "advogado",
+      "professor",
+      "transporte",
+      "governo",
+      "apoio nao financeiro",
+      "sem dinheiro",
+    ],
   },
   {
     intent: "parceria",
@@ -27,7 +46,7 @@ const INTENT_RULES: Array<{ intent: Intent; keywords: string[] }> = [
   },
   {
     intent: "doacao",
-    keywords: ["doar", "doacao", "pix", "paypal", "contribuir", "campanha", "arrecadar"],
+    keywords: ["doar", "doacao", "pix", "paypal", "contribuir", "arrecadar", "apoiar"],
   },
   {
     intent: "transparencia",
@@ -61,11 +80,11 @@ function byIntent(intent: Intent): AssistantReply {
       intent,
       title: "Atendimento urgente",
       answer:
-        "Se houver risco imediato de vida, procure o servico medico de emergencia da sua regiao agora. Em paralelo, a Rede Sol pode organizar o fluxo social de apoio para o caso.",
+        "Se houver risco imediato à vida, procure o serviço de emergência da sua região. O portal não substitui atendimento emergencial; você também pode registrar um pedido para avaliação da equipe.",
       nextSteps: [
-        "Acione atendimento medico local imediatamente.",
-        "Depois registre o pedido no portal com detalhes basicos.",
-        "Marque o caso como urgente para priorizacao da curadoria.",
+        "Acione o serviço de emergência local imediatamente.",
+        "Depois, se desejar, registre um pedido no portal e marque a situação como urgente.",
+        "A equipe avaliará o pedido; a marcação de urgência não garante atendimento imediato ou concessão de apoio.",
       ],
       ctas: [
         { label: "Criar pedido de apoio", href: "/login?next=/meus-pedidos/novo" },
@@ -79,11 +98,11 @@ function byIntent(intent: Intent): AssistantReply {
       intent,
       title: "Solicitar apoio",
       answer:
-        "Para receber atendimento da Rede Sol, o caminho oficial e abrir um pedido no sistema. A equipe de curadoria analisa os dados, conversa com a familia e decide os proximos passos.",
+        "Você pode iniciar um pedido privado pelo portal. A equipe fará a triagem e poderá conversar com você para compreender a necessidade e avaliar possibilidades. Enviar o pedido não garante apoio ou campanha.",
       nextSteps: [
-        "Entre com sua conta no portal.",
-        "Preencha o formulario com descricao, meta e anexos.",
-        "Acompanhe status e mensagens em Meus pedidos.",
+        "Entre com sua conta para acessar o formulário.",
+        "Compartilhe apenas o necessário; documentos anexados não são publicados.",
+        "Acompanhe o status e as mensagens na área Meus pedidos.",
       ],
       ctas: [
         { label: "Abrir novo pedido", href: "/login?next=/meus-pedidos/novo" },
@@ -95,15 +114,15 @@ function byIntent(intent: Intent): AssistantReply {
   if (intent === "voluntariado") {
     return {
       intent,
-      title: "Voluntariado Rede Sol",
+      title: "Voluntariado ICEFLU",
       answer:
-        "Voce pode se inscrever pelo formulario oficial de voluntariado. A equipe avalia perfil, disponibilidade e aderencia com as demandas em campo.",
+        "Você pode se inscrever pelo formulário de Voluntariado e indicar habilidades, disponibilidade e formas de participação. A inscrição não presume habilitação nem garante uma oportunidade.",
       nextSteps: [
-        "Preencha todos os campos obrigatorios do formulario.",
-        "Descreva claramente suas habilidades e disponibilidade.",
-        "Aguarde retorno por e-mail da equipe.",
+        "Preencha os dados solicitados no formulário.",
+        "Descreva suas habilidades e disponibilidade, se desejar.",
+        "A equipe avaliará possibilidades de participação conforme as necessidades e os critérios institucionais.",
       ],
-      ctas: [{ label: "Ir para voluntariado", href: "/pt/voluntarios" }],
+      ctas: [{ label: "Ir para voluntariado", href: "/pt/voluntariar" }],
     };
   }
 
@@ -112,15 +131,15 @@ function byIntent(intent: Intent): AssistantReply {
       intent,
       title: "Parcerias e apoio institucional",
       answer:
-        "A Rede Sol recebe parcerias para fortalecer saude, logistica e promocao social nas comunidades. O ideal e comecar por um contato direto com objetivo e tipo de apoio.",
+        "A ICEFLU recebe parcerias para fortalecer o trabalho voluntario em saude, educacao, logistica e cidadania nas comunidades. O ideal e comecar por um contato direto com objetivo e tipo de apoio.",
       nextSteps: [
         "Defina como sua instituicao pode apoiar (recurso, logistica, servico ou comunicacao).",
         "Envie contato com responsavel e horizonte de colaboracao.",
         "A equipe retorna com formato de parceria viavel.",
       ],
       ctas: [
-        { label: "Enviar e-mail para a equipe", href: "mailto:as.social.iceflu@gmail.com" },
-        { label: "Ver frentes de acao", href: "/pt#frentes" },
+        { label: "Enviar e-mail para a equipe", href: "mailto:daimesolidariedade@gmail.com" },
+        { label: "Cadastrar como voluntário", href: "/pt/voluntariar" },
       ],
     };
   }
@@ -130,15 +149,15 @@ function byIntent(intent: Intent): AssistantReply {
       intent,
       title: "Doacoes e campanhas",
       answer:
-        "Voce pode apoiar campanhas ativas diretamente no portal. O sistema exibe progresso, status e prestacao de contas para cada campanha.",
+        "Consulte a lista de campanhas que foram avaliadas e publicadas. As formas de contribuição disponíveis devem ser conferidas na própria campanha; não há garantia de campanha ativa ou de pagamento habilitado.",
       nextSteps: [
-        "Abra uma campanha ativa.",
-        "Escolha a forma de contribuicao disponivel.",
-        "Acompanhe a evolucao e a prestacao de contas.",
+        "Veja quais campanhas estão publicadas.",
+        "Confira objetivo, prazo e forma de contribuição indicada em cada uma.",
+        "Acompanhe as atualizações e a prestação de contas quando disponíveis.",
       ],
       ctas: [
-        { label: "Ver campanhas ativas", href: "/pt#campanhas" },
-        { label: "Ler sobre transparencia", href: "/pt/como-funciona" },
+        { label: "Ver campanhas", href: "/pt/doar" },
+        { label: "Ler sobre transparência", href: "/pt/transparencia" },
       ],
     };
   }
@@ -148,15 +167,33 @@ function byIntent(intent: Intent): AssistantReply {
       intent,
       title: "Transparencia e confianca",
       answer:
-        "A Rede Sol trabalha com curadoria antes da publicacao, segregacao de funcao no repasse e prestacao de contas publica por campanha.",
+        "Campanhas passam por análise da curadoria e precisam ser publicadas separadamente antes de aparecer na página pública. A transparência deve apresentar informações verificáveis sem expor dados pessoais.",
       nextSteps: [
-        "Consulte campanhas com prestacao publicada.",
-        "Verifique linha de transparencia e comprovantes.",
-        "Em caso de duvida, fale com a equipe de assistencia social.",
+        "Consulte as campanhas publicadas e suas atualizações.",
+        "Verifique a linha de transparência e os comprovantes que estiverem disponíveis.",
+        "Auditoria independente só deve ser anunciada após definição institucional formal.",
       ],
       ctas: [
         { label: "Ver como funciona", href: "/pt/como-funciona" },
-        { label: "Ver noticias e resultados", href: "/pt/noticias/fazenda-sao-sebastiao-internet" },
+        { label: "Ver campanhas", href: "/pt/doar" },
+      ],
+    };
+  }
+
+  if (intent === "campanha") {
+    return {
+      intent,
+      title: "Como uma campanha chega ao portal",
+      answer:
+        "Uma necessidade é analisada pela curadoria; quando uma campanha é aprovada, sua publicação ainda precisa ser liberada separadamente. Só então ela aparece na lista pública.",
+      nextSteps: [
+        "O pedido de apoio não é publicado automaticamente.",
+        "O texto público é revisado com a pessoa antes da aprovação.",
+        "A publicação não garante arrecadação nem concessão de apoio.",
+      ],
+      ctas: [
+        { label: "Consultar campanhas publicadas", href: "/pt/doar" },
+        { label: "Preciso de apoio", href: "/pt/preciso-de-ajuda" },
       ],
     };
   }
@@ -165,16 +202,16 @@ function byIntent(intent: Intent): AssistantReply {
     intent: "geral",
     title: "Como posso te ajudar agora",
     answer:
-      "Posso orientar em doacoes, pedidos de apoio, voluntariado, parcerias e transparencia da Rede Sol.",
+      "Posso orientar sobre pedidos privados de apoio, voluntariado, campanhas publicadas, propostas de projetos e transparência.",
     nextSteps: [
-      "Se quiser ajudar: veja campanhas ativas.",
-      "Se precisar de apoio: abra um pedido no portal.",
-      "Se quiser participar: preencha o formulario de voluntariado.",
+      "Se precisa de apoio, você pode iniciar um pedido privado.",
+      "Se quer participar, conheça o formulário de voluntariado.",
+      "Campanhas só aparecem depois de avaliação e publicação.",
     ],
     ctas: [
-      { label: "Campanhas", href: "/pt#campanhas" },
-      { label: "Novo pedido", href: "/login?next=/meus-pedidos/novo" },
-      { label: "Voluntariado", href: "/pt/voluntarios" },
+      { label: "Preciso de apoio", href: "/pt/preciso-de-ajuda" },
+      { label: "Ver campanhas", href: "/pt/doar" },
+      { label: "Voluntariado", href: "/pt/voluntariar" },
     ],
   };
 }

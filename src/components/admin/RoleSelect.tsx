@@ -4,7 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Role } from "@/lib/types/domain";
 
-const ROLES: Role[] = ["requerente", "curador", "financeiro", "admin"];
+const ROLES: Role[] = ["requerente", "curador", "assistente_social", "financeiro", "editor_conteudo", "admin"];
+const ROLE_LABELS: Record<Role, string> = {
+  requerente: "requerente",
+  curador: "curador",
+  assistente_social: "Assistente social",
+  financeiro: "financeiro",
+  editor_conteudo: "Editor de conteúdo",
+  admin: "admin",
+};
 
 export function RoleSelect({
   uid,
@@ -49,7 +57,7 @@ export function RoleSelect({
       >
         {ROLES.map((r) => (
           <option key={r} value={r}>
-            {r}
+            {ROLE_LABELS[r]}
           </option>
         ))}
       </select>
