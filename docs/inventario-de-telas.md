@@ -40,6 +40,14 @@ redirecionam para os novos (`next.config.mjs`).
 | Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
 | Minha conta (senha) | `app/(app)/conta` | qualquer conta |
 
+### Evolução × encerramento no Serviço Social
+
+- **Evolução (acompanhamento):** registros datados ao longo do caso (contatos, visitas, encaminhamentos).
+- **Encerramento (desfecho):** obrigatório informar o **resultado** (`src/lib/domain/encerramento.ts`:
+  atendida, parcial, encaminhada, não atendida, sem contato, desistência, outro) e “como ficou o caso”.
+  O caso encerrado mostra um resumo do desfecho no topo da ficha e o resultado na lista.
+- **Reabrir:** o desfecho anterior é copiado para a evolução, para não se perder.
+
 ### Filtros e paginação dos painéis (2026-10-22)
 
 Serviço Social, Curadoria, Voluntários e Usuários têm filtros na URL (dá para salvar ou
@@ -47,7 +55,7 @@ compartilhar uma visão) e paginação de 25 itens (`src/lib/panels/`, `src/comp
 
 | Painel | Filtros |
 | --- | --- |
-| Serviço Social | busca (nome, nome social, e-mail, telefone, território), prioridade, atendimento (padrão: não encerrados), categoria, município, encaminhado p/ campanha, período, ordem |
+| Serviço Social | abas Ativos / Encerrados / Todos; busca (nome, nome social, e-mail, telefone, território), prioridade, atendimento, resultado do encerramento, categoria, município, encaminhado p/ campanha, período, ordem |
 | Curadoria | busca, prioridade, estado do pedido, origem (encaminhado), categoria, município, ordem |
 | Voluntários | área, o que oferece, cidade, modalidade, busca |
 | Usuários (admin) | nome ou e-mail, papel |

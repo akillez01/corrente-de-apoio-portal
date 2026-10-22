@@ -6,6 +6,7 @@ import { SOCIAL_CASES_COLLECTION } from "@/lib/data/socialCases";
 import { appendAuditLog } from "@/lib/audit";
 import type { SocialCase, SocialCaseEntry } from "@/lib/types/domain";
 import { isPrioridade, PRIORIDADE_LABEL } from "@/lib/domain/prioridade";
+import { isResultado, RESULTADO_LABEL, type ResultadoEncerramento } from "@/lib/domain/encerramento";
 
 const TEXT_FIELDS = [
   "demandaApresentada",
@@ -129,7 +130,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       }
       if (action === "encerrar") {
         if (!texto || texto.length > MAX_TEXT) throw new RangeError("texto");
-        tx.update(caseRef, { status: "encerrado", encerramento: entry, atualizadoEm: now });
+        if (!isResultado(body.resultado)) throw new RangeError("resultado");
+        tx.update(caseRef, {
+          status: "encerrado",
+          encerramento: { ...entry, resultado: body.resultado },
+          atualizadoEm: now,
+        });
         return;
       }
       if (action === "encaminhar_campanha") {
@@ -155,7 +161,14 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         return;
       }
       if (action === "reabrir") {
-        const reabertura: SocialCaseEntry = { ...entry, texto: "Atendimento reaberto." };
+        // O desfecho anterior fica no histórico da evolução, para não se perder ao reabrir.
+        const anterior = current.encerramento;
+        const reabertura: SocialCaseEntry = {
+          ...entry,
+          texto: anterior
+            ? `Atendimento reaberto. Encerramento anterior (${RESULTADO_LABEL[anterior.resultado as ResultadoEncerramento] ?? "sem resultado"}): ${anterior.texto}`
+            : "Atendimento reaberto.",
+        };
         tx.update(caseRef, {
           status: "aberto",
           encerramento: null,

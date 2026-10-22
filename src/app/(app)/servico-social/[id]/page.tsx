@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth/session";
 import { getRequestById } from "@/lib/data/requests";
 import { getSocialCase } from "@/lib/data/socialCases";
+import { RESULTADO_LABEL, type ResultadoEncerramento } from "@/lib/domain/encerramento";
 import { ProntuarioForm } from "@/components/servicoSocial/ProntuarioForm";
 import { CampanhaPanel } from "@/components/servicoSocial/CampanhaPanel";
 import { PrioridadePanel } from "@/components/servicoSocial/PrioridadePanel";
@@ -78,7 +79,21 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
         {" · "}consentimento LGPD em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}
       </p>
 
-{request.anexosNaoSalvos && request.anexosNaoSalvos.length > 0 && (
+      {socialCase?.status === "encerrado" && socialCase.encerramento && (
+        <section className="mb-[18px] rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
+          <h2 className="font-semibold">
+            Atendimento encerrado ·{" "}
+            {RESULTADO_LABEL[socialCase.encerramento.resultado as ResultadoEncerramento] ?? "resultado não informado"}
+          </h2>
+          <p className="mt-1 whitespace-pre-line">{socialCase.encerramento.texto}</p>
+          <p className="mt-1 text-[11.5px] opacity-80">
+            {socialCase.encerramento.autor} · {new Date(socialCase.encerramento.data).toLocaleString("pt-BR")}
+            {" "}· veja abaixo a ficha e toda a evolução do caso.
+          </p>
+        </section>
+      )}
+
+      {request.anexosNaoSalvos && request.anexosNaoSalvos.length > 0 && (
         <p className="mb-[18px] rounded-xl border border-[#EBD9A8] bg-[#FDF3DC] p-3.5 text-[12.5px] text-[#8A6414]">
           A pessoa tentou enviar anexos que não puderam ser salvos ({request.anexosNaoSalvos.join(", ")}).
           Peça os arquivos novamente no atendimento.

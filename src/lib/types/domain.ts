@@ -191,7 +191,7 @@ export interface SocialCase {
   planoIntervencao: string;
   acompanhamento: string;
   evolucoes: SocialCaseEntry[];
-  encerramento: SocialCaseEntry | null;
+  encerramento: (SocialCaseEntry & { resultado?: string }) | null;
   criadoEm: string;
   atualizadoEm: string;
 }

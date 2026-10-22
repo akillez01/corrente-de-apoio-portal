@@ -10,7 +10,26 @@ export async function getSocialCase(requestId: string): Promise<SocialCase | nul
   return { id: doc.id, ...doc.data() } as SocialCase;
 }
 
-export async function getSocialCaseStatuses(): Promise<Map<string, SocialCase["status"]>> {
-  const snapshot = await getAdminDb().collection(SOCIAL_CASES_COLLECTION).select("status").get();
-  return new Map(snapshot.docs.map((doc) => [doc.id, doc.get("status") as SocialCase["status"]]));
+export interface SocialCaseSummary {
+  status: SocialCase["status"];
+  resultado: string | null;
+  encerradoEm: string | null;
+}
+
+// Situação de cada prontuário para as listas (lê só status e desfecho).
+export async function getSocialCaseSummaries(): Promise<Map<string, SocialCaseSummary>> {
+  const snapshot = await getAdminDb()
+    .collection(SOCIAL_CASES_COLLECTION)
+    .select("status", "encerramento.resultado", "encerramento.data")
+    .get();
+  return new Map(
+    snapshot.docs.map((doc) => [
+      doc.id,
+      {
+        status: doc.get("status") as SocialCase["status"],
+        resultado: (doc.get("encerramento.resultado") as string | undefined) ?? null,
+        encerradoEm: (doc.get("encerramento.data") as string | undefined) ?? null,
+      },
+    ]),
+  );
 }

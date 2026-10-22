@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth/session";
 import { getRequestSummaries } from "@/lib/data/requests";
-import { getSocialCaseStatuses } from "@/lib/data/socialCases";
+import { getSocialCaseSummaries } from "@/lib/data/socialCases";
+import {
+  RESULTADO_LABEL,
+  RESULTADOS_ENCERRAMENTO,
+  RESULTADOS_POSITIVOS,
+  isResultado,
+} from "@/lib/domain/encerramento";
+import { param } from "@/lib/panels/filters";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { PrioridadeBadge } from "@/components/servicoSocial/PrioridadeBadge";
 import {
@@ -37,13 +44,20 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
   await requireRole("assistente_social", "admin");
   const params = await searchParams;
   const f = readRequestFilters(params, DEFAULTS);
-  const [all, statuses] = await Promise.all([
+  const resultado = param(params, "resultado");
+  const [all, cases] = await Promise.all([
     getRequestSummaries({ desde: f.de || undefined }),
-    getSocialCaseStatuses(),
+    getSocialCaseSummaries(),
   ]);
   const requests = all.filter((request) => request.status !== "arquivado");
-  const caseStatus = (request: { id: string }): CaseStatus => statuses.get(request.id) ?? "sem_ficha";
-  const page = paginate(filterRequests(requests, f, { caseStatus }), f.pagina);
+  const caseStatus = (request: { id: string }): CaseStatus => cases.get(request.id)?.status ?? "sem_ficha";
+  // Filtrar por resultado só faz sentido entre os encerrados.
+  if (resultado && f.caso === "ativos") f.caso = "encerrado";
+  const filtered = filterRequests(requests, f, { caseStatus }).filter(
+    (request) => !resultado || cases.get(request.id)?.resultado === resultado,
+  );
+  const page = paginate(filtered, f.pagina);
+  const tab = f.caso === "encerrado" ? "encerrado" : f.caso === "todos" ? "todos" : "ativos";
   const count = (status: CaseStatus) => requests.filter((request) => caseStatus(request) === status).length;
   const urgentesSemFicha = requests.filter(
     (request) =>
@@ -65,7 +79,29 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
         <KpiCard label="Encerrados" value={String(count("encerrado"))} />
       </div>
 
-      <FilterForm action="/servico-social" hasFilters={hasActiveFilters(f, DEFAULTS)}>
+      <nav aria-label="Situação dos atendimentos" className="mb-3 flex flex-wrap gap-2">
+        {(
+          [
+            ["ativos", "Ativos", "/servico-social"],
+            ["encerrado", `Encerrados (${count("encerrado")})`, "/servico-social?caso=encerrado"],
+            ["todos", "Todos", "/servico-social?caso=todos"],
+          ] as const
+        ).map(([key, label, href]) => (
+          <Link
+            key={key}
+            href={href}
+            className={
+              tab === key
+                ? "rounded-lg bg-primary px-3.5 py-1.5 text-[13px] font-semibold text-white"
+                : "rounded-lg border border-border bg-white px-3.5 py-1.5 text-[13px] font-semibold text-muted hover:border-primary"
+            }
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      <FilterForm action="/servico-social" hasFilters={hasActiveFilters(f, DEFAULTS) || Boolean(resultado)}>
         <label className={`${FILTER_LABEL} sm:col-span-2`}>
           Buscar pessoa
           <input name="q" defaultValue={f.q} placeholder="Nome, nome social, e-mail, telefone ou território" className={FILTER_INPUT} />
@@ -104,6 +140,12 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
             ["sim", "Encaminhados para campanha"],
             ["nao", "Não encaminhados"],
           ]}
+        />
+        <SelectFilter
+          name="resultado"
+          label="Resultado (encerrados)"
+          value={isResultado(resultado) ? resultado : ""}
+          options={RESULTADOS_ENCERRAMENTO.map(([value, label]) => [value, label])}
         />
         <SelectFilter name="ordem" label="Ordenar por" value={f.ordem} emptyLabel="Prioridade" options={ORDEM_OPTIONS} />
         <label className={FILTER_LABEL}>
@@ -148,9 +190,24 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
                     {new Date(request.criadoEm).toLocaleDateString("pt-BR")}
                   </div>
                 </div>
-                <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${CASE_LABEL[status].className}`}>
-                  {CASE_LABEL[status].label}
-                </span>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold ${CASE_LABEL[status].className}`}>
+                    {CASE_LABEL[status].label}
+                  </span>
+                  {status === "encerrado" && (
+                    <span
+                      className={`text-[11.5px] font-semibold ${
+                        RESULTADOS_POSITIVOS.includes(cases.get(request.id)?.resultado as never)
+                          ? "text-primary"
+                          : "text-muted"
+                      }`}
+                    >
+                      {isResultado(cases.get(request.id)?.resultado)
+                        ? RESULTADO_LABEL[cases.get(request.id)?.resultado as keyof typeof RESULTADO_LABEL]
+                        : "Resultado não informado"}
+                    </span>
+                  )}
+                </div>
               </Link>
             );
           })}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { SocialCase } from "@/lib/types/domain";
+import { RESULTADO_LABEL, RESULTADOS_ENCERRAMENTO, type ResultadoEncerramento } from "@/lib/domain/encerramento";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -47,6 +48,7 @@ export function ProntuarioForm({
   );
   const [evolucao, setEvolucao] = useState("");
   const [encerramento, setEncerramento] = useState("");
+  const [resultado, setResultado] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -137,7 +139,12 @@ export function ProntuarioForm({
 
       {socialCase && (
         <section className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-4 sm:p-5">
-          <h2 className="font-serif text-xl font-semibold">Evolução</h2>
+          <div>
+            <h2 className="font-serif text-xl font-semibold">Evolução (acompanhamento)</h2>
+            <p className="mt-1 text-[12.5px] text-muted">
+              Registros do acompanhamento ao longo do tempo: contatos, visitas, encaminhamentos feitos.
+            </p>
+          </div>
           {socialCase.evolucoes.length === 0 ? (
             <p className="text-[13px] text-muted">Nenhum registro de evolução ainda.</p>
           ) : (
@@ -178,13 +185,23 @@ export function ProntuarioForm({
 
       {socialCase && (
         <section className="flex flex-col gap-3 rounded-2xl border border-border bg-white p-4 sm:p-5">
-          <h2 className="font-serif text-xl font-semibold">Encerramento</h2>
+          <div>
+            <h2 className="font-serif text-xl font-semibold">Encerramento (desfecho do caso)</h2>
+            <p className="mt-1 text-[12.5px] text-muted">
+              Diferente da evolução: aqui fica o resultado final — se a demanda foi atendida ou não e
+              como o caso terminou. Use só quando o acompanhamento acabar.
+            </p>
+          </div>
           {encerrado && socialCase.encerramento ? (
             <>
               <div className="rounded-lg border border-border bg-bg p-3 text-[13px]">
                 <div className="text-[11.5px] text-muted">
                   Encerrado em {formatDateTime(socialCase.encerramento.data)} · {socialCase.encerramento.autor}
                 </div>
+                <p className="mt-1 font-semibold">
+                  Resultado:{" "}
+                  {RESULTADO_LABEL[socialCase.encerramento.resultado as ResultadoEncerramento] ?? "não informado"}
+                </p>
                 <p className="mt-1 whitespace-pre-line">{socialCase.encerramento.texto}</p>
               </div>
               <button
@@ -200,13 +217,39 @@ export function ProntuarioForm({
             <form
               onSubmit={async (event) => {
                 event.preventDefault();
-                if (await send("encerrar", { texto: encerramento })) setEncerramento("");
+                if (await send("encerrar", { texto: encerramento, resultado })) {
+                  setEncerramento("");
+                  setResultado("");
+                }
               }}
               className="flex flex-col gap-2"
             >
               <label className={LABEL}>
-                Motivo e síntese do encerramento
-                <textarea required maxLength={10000} value={encerramento} onChange={(e) => setEncerramento(e.target.value)} className={TEXTAREA} />
+                Resultado do atendimento *
+                <select
+                  required
+                  value={resultado}
+                  onChange={(e) => setResultado(e.target.value)}
+                  className="mt-1 block w-full rounded-xl border border-border bg-white px-3 py-2.5 text-[13.5px] normal-case tracking-normal text-ink outline-none focus:border-primary"
+                >
+                  <option value="">Selecione</option>
+                  {RESULTADOS_ENCERRAMENTO.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={LABEL}>
+                Como ficou o caso *
+                <textarea
+                  required
+                  maxLength={10000}
+                  value={encerramento}
+                  onChange={(e) => setEncerramento(e.target.value)}
+                  placeholder="Ex.: família recebeu 3 cestas e foi inscrita no CRAS; renda estabilizada com trabalho formal."
+                  className={TEXTAREA}
+                />
               </label>
               <button
                 type="submit"
