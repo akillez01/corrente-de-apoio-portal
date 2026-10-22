@@ -139,14 +139,17 @@ export async function POST(req: Request) {
 
   const db = getAdminDb();
   const requestRef = db.collection("requests").doc();
+  // Falha no armazenamento de anexos não pode custar o cadastro de quem pede ajuda:
+  // o pedido é salvo sem os arquivos, a pessoa é avisada e o erro fica só no log.
   const attachments = [];
+  let anexosFalharam = false;
   try {
     for (const file of anexos) {
       attachments.push(await uploadAttachment(requestRef.id, file));
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Não foi possível salvar os anexos.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    console.error("Falha ao salvar anexos do pedido", requestRef.id, error);
+    anexosFalharam = true;
   }
 
   const now = new Date().toISOString();
@@ -178,6 +181,7 @@ export async function POST(req: Request) {
     descricao,
     textoPublico: "",
     anexos: attachments,
+    anexosNaoSalvos: anexosFalharam ? anexos.map((file) => file.name) : [],
     consentimentoLgpdEm: now,
     status: "submetido",
     mensagens: [],
@@ -197,5 +201,5 @@ export async function POST(req: Request) {
     path: `/curadoria/${requestRef.id}`,
   });
 
-  return NextResponse.json({ ok: true, id: requestRef.id, notificationSent });
+  return NextResponse.json({ ok: true, id: requestRef.id, notificationSent, anexosFalharam });
 }

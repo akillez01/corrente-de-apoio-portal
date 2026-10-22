@@ -195,7 +195,7 @@ export function AcolhimentoForm({
         setError(result.error ?? "Não foi possível enviar o cadastro.");
         return;
       }
-      router.push("/meus-pedidos?enviado=1");
+      router.push(result.anexosFalharam ? "/meus-pedidos?enviado=1&anexos=falha" : "/meus-pedidos?enviado=1");
       router.refresh();
     } catch {
       setError("Falha de conexão. Confira sua internet e tente novamente.");

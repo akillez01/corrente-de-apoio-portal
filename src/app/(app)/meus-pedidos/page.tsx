@@ -21,10 +21,10 @@ const VISIBLE_CAMPAIGN_STATUSES = new Set([
 export default async function MeusPedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ enviado?: string }>;
+  searchParams: Promise<{ enviado?: string; anexos?: string }>;
 }) {
   const user = await requireRole("requerente", "admin");
-  const { enviado } = await searchParams;
+  const { enviado, anexos } = await searchParams;
   const requests = await getRequestsByRequerente(user.uid);
   const totalMeta = requests.reduce((acc, request) => acc + request.meta, 0);
   const emAndamento = requests.filter((request) =>
@@ -63,6 +63,8 @@ export default async function MeusPedidosPage({
         <p role="status" className="mb-5 rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
           Cadastro recebido! O Serviço Social vai analisar seu caso e entrar em contato pela forma
           que você escolheu. Acompanhe o andamento por aqui.
+          {anexos === "falha" &&
+            " Seus anexos não puderam ser enviados agora, mas o cadastro foi salvo. Se forem importantes, a equipe vai pedir de novo no atendimento."}
         </p>
       )}
 

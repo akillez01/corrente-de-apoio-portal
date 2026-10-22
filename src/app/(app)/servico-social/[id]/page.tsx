@@ -67,6 +67,13 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
         {" · "}consentimento LGPD em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}
       </p>
 
+{request.anexosNaoSalvos && request.anexosNaoSalvos.length > 0 && (
+        <p className="mb-[18px] rounded-xl border border-[#EBD9A8] bg-[#FDF3DC] p-3.5 text-[12.5px] text-[#8A6414]">
+          A pessoa tentou enviar anexos que não puderam ser salvos ({request.anexosNaoSalvos.join(", ")}).
+          Peça os arquivos novamente no atendimento.
+        </p>
+      )}
+
       <div className="mb-6 flex flex-col gap-3">
         <Module
           title="Módulo 1 — Identificação"

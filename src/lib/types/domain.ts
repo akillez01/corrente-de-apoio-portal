@@ -138,6 +138,7 @@ export interface SupportRequest {
   querConversarComServicoSocial?: boolean;
   textoPublico: string;
   anexos: Attachment[];
+  anexosNaoSalvos?: string[];
   consentimentoLgpdEm: string;
   status: RequestStatus;
   curadorId?: string;

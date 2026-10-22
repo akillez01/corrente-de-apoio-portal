@@ -83,6 +83,13 @@ export default async function CuradoriaPedidoPage({ params }: { params: Promise<
         </section>
       )}
 
+      {request.anexosNaoSalvos && request.anexosNaoSalvos.length > 0 && (
+        <p className="mb-[18px] rounded-xl border border-[#EBD9A8] bg-[#FDF3DC] p-3.5 text-[12.5px] text-[#8A6414]">
+          A pessoa tentou enviar anexos que não puderam ser salvos ({request.anexosNaoSalvos.join(", ")}).
+          Peça os arquivos novamente no atendimento.
+        </p>
+      )}
+
       <h4 className="mb-2 text-[11.5px] font-semibold uppercase tracking-wider text-muted">
         Anexos do requerente
       </h4>
