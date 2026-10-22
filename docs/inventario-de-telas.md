@@ -40,6 +40,21 @@ redirecionam para os novos (`next.config.mjs`).
 | Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
 | Minha conta (senha) | `app/(app)/conta` | qualquer conta |
 
+### Filtros e paginação dos painéis (2026-10-22)
+
+Serviço Social, Curadoria, Voluntários e Usuários têm filtros na URL (dá para salvar ou
+compartilhar uma visão) e paginação de 25 itens (`src/lib/panels/`, `src/components/panels/`).
+
+| Painel | Filtros |
+| --- | --- |
+| Serviço Social | busca (nome, nome social, e-mail, telefone, território), prioridade, atendimento (padrão: não encerrados), categoria, município, encaminhado p/ campanha, período, ordem |
+| Curadoria | busca, prioridade, estado do pedido, origem (encaminhado), categoria, município, ordem |
+| Voluntários | área, o que oferece, cidade, modalidade, busca |
+| Usuários (admin) | nome ou e-mail, papel |
+
+As listas leem só os campos que exibem (`getRequestSummaries`); relato, módulos 2–3 e anexos
+são lidos apenas ao abrir um caso. Busca sem acento e por números de telefone.
+
 ### Do acolhimento à campanha publicada
 
 1. **Serviço Social** (`/servico-social/[id]`): salva a ficha e usa **Encaminhar para campanha**

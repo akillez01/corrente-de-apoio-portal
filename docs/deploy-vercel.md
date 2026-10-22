@@ -124,6 +124,10 @@ Atualizado em 2026-10-22.
    `servicosocial.teste2@daimesolidariedade.org` (papel `assistente_social`) e os cadastros de
    teste devem ser removidos ao fim do período de testes.
 6. Cadastro de acolhimento, telas internas e notícias novas ainda só em português.
+7. **Escala dos painéis:** os filtros rodam no servidor sobre a lista leve de cadastros. Teste com
+   1.500 cadastros: 0,7–2 s por página no modo de desenvolvimento. Cada abertura de painel lê
+   todos os cadastros (cobrança do Firestore por documento lido). Acima de ~10 mil cadastros,
+   migrar para consultas indexadas com cursor e um serviço de busca (ex.: Typesense/Algolia).
 
 ## Registro de validação — 2026-09-21
 

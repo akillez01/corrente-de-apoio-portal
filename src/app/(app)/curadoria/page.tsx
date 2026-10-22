@@ -2,20 +2,36 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { PrioridadeBadge } from "@/components/servicoSocial/PrioridadeBadge";
 import { StatusChip } from "@/components/StatusChip";
 import { requireRole } from "@/lib/auth/session";
-import { getRequestsQueue } from "@/lib/data/requests";
+import { getRequestSummaries } from "@/lib/data/requests";
+import {
+  FILTER_INPUT,
+  FILTER_LABEL,
+  FilterForm,
+  Pagination,
+  ResultSummary,
+  SelectFilter,
+} from "@/components/panels/PanelControls";
+import { CATEGORIAS_DEMANDA } from "@/lib/domain/acolhimento";
+import { distinctSorted, paginate, type SearchParams } from "@/lib/panels/filters";
+import {
+  filterRequests,
+  hasActiveFilters,
+  ORDEM_OPTIONS,
+  PRIORIDADE_OPTIONS,
+  readRequestFilters,
+} from "@/lib/panels/requestFilters";
 import { formatBRL } from "@/lib/format";
 import Link from "next/link";
 
 export const revalidate = 0;
 
-export default async function CuradoriaFilaPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ aprovado?: string }>;
-}) {
+export default async function CuradoriaFilaPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const user = await requireRole("curador", "admin");
-  const { aprovado } = await searchParams;
-  const requests = await getRequestsQueue();
+  const params = await searchParams;
+  const aprovado = params.aprovado;
+  const f = readRequestFilters(params);
+  const requests = await getRequestSummaries({ statuses: ["submetido", "em_analise", "em_alinhamento"] });
+  const page = paginate(filterRequests(requests, f, { referredFirst: !f.ordem }), f.pagina);
   const urgentes = requests.filter((request) => request.urgente).length;
   const emAlinhamento = requests.filter((request) => request.status === "em_alinhamento").length;
   const metaFila = requests.reduce((acc, request) => acc + request.meta, 0);
@@ -59,9 +75,46 @@ export default async function CuradoriaFilaPage({
         />
       </div>
 
-      {requests.length === 0 ? (
+      <FilterForm action="/curadoria" hasFilters={hasActiveFilters(f)}>
+        <label className={`${FILTER_LABEL} sm:col-span-2`}>
+          Buscar
+          <input name="q" defaultValue={f.q} placeholder="Nome, e-mail, telefone, território ou título" className={FILTER_INPUT} />
+        </label>
+        <SelectFilter name="prioridade" label="Prioridade (Serviço Social)" value={f.prioridade} options={PRIORIDADE_OPTIONS} emptyLabel="Todas" />
+        <SelectFilter
+          name="status"
+          label="Estado"
+          value={f.status}
+          options={[
+            ["submetido", "Submetido"],
+            ["em_analise", "Em análise"],
+            ["em_alinhamento", "Em alinhamento"],
+          ]}
+        />
+        <SelectFilter
+          name="campanha"
+          label="Origem"
+          value={f.campanha}
+          options={[
+            ["sim", "Encaminhados pelo Serviço Social"],
+            ["nao", "Sem encaminhamento"],
+          ]}
+        />
+        <SelectFilter name="categoria" label="Categoria" value={f.categoria} emptyLabel="Todas" options={CATEGORIAS_DEMANDA.map((c) => [c, c])} />
+        <SelectFilter
+          name="municipio"
+          label="Município"
+          value={f.municipio}
+          options={distinctSorted(requests.map((r) => r.identificacao?.municipio)).map((m) => [m, m])}
+        />
+        <SelectFilter name="ordem" label="Ordenar por" value={f.ordem} emptyLabel="Encaminhados e prioridade" options={ORDEM_OPTIONS} />
+      </FilterForm>
+
+      <ResultSummary page={page} totalAll={requests.length} noun="pedido(s) na fila" />
+
+      {page.items.length === 0 ? (
         <div className="rounded-2xl border border-border bg-white p-10 text-center text-muted">
-          Nenhum pedido na fila no momento.
+          {requests.length === 0 ? "Nenhum pedido na fila no momento." : "Nenhum pedido encontrado com estes filtros."}
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-white">
@@ -72,7 +125,7 @@ export default async function CuradoriaFilaPage({
             <span>Estado</span>
             <span />
           </div>
-          {requests.map((request) => (
+          {page.items.map((request) => (
             <div
               key={request.id}
               className="grid grid-cols-[2.2fr_.8fr_.9fr_.9fr_auto] items-center gap-3 border-b border-border px-4.5 py-3.5 text-[13.5px] last:border-b-0"
@@ -102,6 +155,8 @@ export default async function CuradoriaFilaPage({
           ))}
         </div>
       )}
+
+      <Pagination action="/curadoria" params={params} page={page} />
 
       <p className="mt-3.5 text-[12.5px] text-muted">
         Fluxo: submetido → análise/alinhamento → aprovação da curadoria → publicação pelo admin

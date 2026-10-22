@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { requireRole } from "@/lib/auth/session";
 import { getVolunteers, VOLUNTEER_DIRECTORY_ROLES } from "@/lib/data/volunteers";
-import { AREA_LABELS, AREAS_ATUACAO, OFERTAS } from "@/lib/domain/voluntariado";
+import { AREA_LABELS, AREAS_ATUACAO, MODALIDADES, OFERTAS } from "@/lib/domain/voluntariado";
+import { distinctSorted, matchesSearch, normalize, paginate, param, type SearchParams } from "@/lib/panels/filters";
+import { Pagination, ResultSummary } from "@/components/panels/PanelControls";
 
 export const revalidate = 0;
 
@@ -10,23 +12,28 @@ const SELECT = "rounded-lg border border-border bg-white px-3 py-2 text-[13px] o
 export default async function VoluntariosEquipePage({
   searchParams,
 }: {
-  searchParams: Promise<{ area?: string; oferta?: string; q?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   await requireRole(...VOLUNTEER_DIRECTORY_ROLES);
-  const { area = "", oferta = "", q = "" } = await searchParams;
-  const busca = q.trim().toLocaleLowerCase("pt-BR");
+  const params = await searchParams;
+  const area = param(params, "area");
+  const oferta = param(params, "oferta");
+  const cidade = param(params, "cidade");
+  const modalidade = param(params, "modalidade");
+  const q = param(params, "q");
   const all = await getVolunteers();
-  const volunteers = all.filter(
-    (v) =>
-      (!area || v.areasAtuacao.includes(area)) &&
-      (!oferta || v.ofertas.includes(oferta)) &&
-      (!busca ||
-        [v.nome, v.cidade, v.estado, v.profissao, v.formacao, v.habilidades, v.detalhesOferta]
-          .filter(Boolean)
-          .join(" ")
-          .toLocaleLowerCase("pt-BR")
-          .includes(busca)),
+  const page = paginate(
+    all.filter(
+      (v) =>
+        (!area || v.areasAtuacao.includes(area)) &&
+        (!oferta || v.ofertas.includes(oferta)) &&
+        (!cidade || normalize(v.cidade) === normalize(cidade)) &&
+        (!modalidade || v.modalidade === modalidade) &&
+        matchesSearch(q, [v.nome, v.email, v.telefone, v.cidade, v.estado, v.profissao, v.formacao, v.habilidades, v.detalhesOferta]),
+    ),
+    param(params, "pagina"),
   );
+  const volunteers = page.items;
 
   return (
     <div>
@@ -58,6 +65,28 @@ export default async function VoluntariosEquipePage({
             ))}
           </select>
         </label>
+        <label className="text-[12px] font-semibold text-muted">
+          Cidade
+          <select name="cidade" defaultValue={cidade} className={`${SELECT} mt-1 block`}>
+            <option value="">Todas</option>
+            {distinctSorted(all.map((v) => v.cidade)).map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-[12px] font-semibold text-muted">
+          Modalidade
+          <select name="modalidade" defaultValue={modalidade} className={`${SELECT} mt-1 block`}>
+            <option value="">Todas</option>
+            {MODALIDADES.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="min-w-[200px] flex-1 text-[12px] font-semibold text-muted">
           Buscar
           <input name="q" defaultValue={q} placeholder="Nome, cidade, profissão, habilidade…" className={`${SELECT} mt-1 block w-full`} />
@@ -65,16 +94,14 @@ export default async function VoluntariosEquipePage({
         <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-white">
           Filtrar
         </button>
-        {(area || oferta || q) && (
+        {(area || oferta || q || cidade || modalidade) && (
           <Link href="/voluntarios" className="px-2 py-2 text-[13px] text-muted underline">
             Limpar
           </Link>
         )}
       </form>
 
-      <p className="mb-3 text-[12.5px] text-muted">
-        {volunteers.length} de {all.length} voluntário(s)
-      </p>
+      <ResultSummary page={page} totalAll={all.length} noun="voluntário(s)" />
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {volunteers.map((v) => (
@@ -124,6 +151,7 @@ export default async function VoluntariosEquipePage({
           </article>
         ))}
       </div>
+      <Pagination action="/voluntarios" params={params} page={page} />
     </div>
   );
 }

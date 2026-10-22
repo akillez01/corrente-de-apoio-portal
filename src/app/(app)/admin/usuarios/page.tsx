@@ -7,7 +7,17 @@ import { requireRole } from "@/lib/auth/session";
 import { listUsers } from "@/lib/data/users";
 import { getAdminDb } from "@/lib/firebase/admin";
 import { formatBRL } from "@/lib/format";
-import type { Campaign, Donation, RequestStatus, SupportRequest, Transfer } from "@/lib/types/domain";
+import type { Campaign, Donation, RequestStatus, Transfer } from "@/lib/types/domain";
+import { getRequestSummaries, type RequestSummary } from "@/lib/data/requests";
+import { matchesSearch, paginate, param, type SearchParams } from "@/lib/panels/filters";
+import {
+  FILTER_INPUT,
+  FILTER_LABEL,
+  FilterForm,
+  Pagination,
+  ResultSummary,
+  SelectFilter,
+} from "@/components/panels/PanelControls";
 
 export const revalidate = 0;
 
@@ -21,7 +31,7 @@ function toRoleCount(users: Awaited<ReturnType<typeof listUsers>>) {
   );
 }
 
-function toRequestStatusCount(requests: SupportRequest[]) {
+function toRequestStatusCount(requests: RequestSummary[]) {
   return requests.reduce(
     (acc, request) => {
       acc[request.status] = (acc[request.status] ?? 0) + 1;
@@ -31,19 +41,25 @@ function toRequestStatusCount(requests: SupportRequest[]) {
   );
 }
 
-export default async function AdminUsuariosPage() {
+export default async function AdminUsuariosPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const user = await requireRole("admin");
+  const params = await searchParams;
+  const busca = param(params, "q");
+  const papel = param(params, "papel");
   const users = await listUsers();
+  const usersPage = paginate(
+    users.filter((u) => (!papel || u.role === papel) && matchesSearch(busca, [u.nome, u.email])),
+    param(params, "pagina"),
+  );
 
-  const [requestsSnapshot, campaignsSnapshot, donationsSnapshot, transfersSnapshot] =
-    await Promise.all([
-      getAdminDb().collection("requests").get(),
-      getAdminDb().collection("campaigns").get(),
-      getAdminDb().collection("donations").get(),
-      getAdminDb().collection("transfers").get(),
-    ]);
+  // Só os campos usados nos indicadores, para o painel continuar leve com muitos registros.
+  const [requests, campaignsSnapshot, donationsSnapshot, transfersSnapshot] = await Promise.all([
+    getRequestSummaries(),
+    getAdminDb().collection("campaigns").select("titulo", "status", "arrecadado").get(),
+    getAdminDb().collection("donations").select("valor").get(),
+    getAdminDb().collection("transfers").select("valor").get(),
+  ]);
 
-  const requests = requestsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as SupportRequest);
   const campaigns = campaignsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Campaign);
   const donations = donationsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Donation);
   const transfers = transfersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Transfer);
@@ -173,6 +189,28 @@ export default async function AdminUsuariosPage() {
 
       <CreateUserForm />
 
+      <FilterForm action="/admin/usuarios" hasFilters={Boolean(busca || papel)}>
+        <label className={`${FILTER_LABEL} sm:col-span-2`}>
+          Buscar usuário
+          <input name="q" defaultValue={busca} placeholder="Nome ou e-mail" className={FILTER_INPUT} />
+        </label>
+        <SelectFilter
+          name="papel"
+          label="Papel"
+          value={papel}
+          options={[
+            ["requerente", "Requerente"],
+            ["assistente_social", "Assistente social"],
+            ["curador", "Curadoria"],
+            ["financeiro", "Financeiro"],
+            ["editor_conteudo", "Editor de conteúdo"],
+            ["admin", "Admin"],
+          ]}
+        />
+      </FilterForm>
+
+      <ResultSummary page={usersPage} totalAll={users.length} noun="usuário(s)" />
+
       <div className="overflow-x-auto rounded-2xl border border-border bg-white">
         <div className="min-w-[760px]">
         <div className="grid grid-cols-[2fr_1.4fr_1.2fr_auto] gap-3 bg-bg px-4.5 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted">
@@ -181,7 +219,7 @@ export default async function AdminUsuariosPage() {
           <span>Papel</span>
           <span>Acoes</span>
         </div>
-        {users.map((u) => (
+        {usersPage.items.map((u) => (
           <div
             key={u.uid}
             className="grid grid-cols-[2fr_1.4fr_1.2fr_auto] items-center gap-3 border-b border-border px-4.5 py-3 text-[13.5px] last:border-b-0"
@@ -197,6 +235,8 @@ export default async function AdminUsuariosPage() {
         ))}
         </div>
       </div>
+
+      <Pagination action="/admin/usuarios" params={params} page={usersPage} />
     </div>
   );
 }
