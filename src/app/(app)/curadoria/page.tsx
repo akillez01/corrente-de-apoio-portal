@@ -7,8 +7,13 @@ import Link from "next/link";
 
 export const revalidate = 0;
 
-export default async function CuradoriaFilaPage() {
+export default async function CuradoriaFilaPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aprovado?: string }>;
+}) {
   const user = await requireRole("curador", "admin");
+  const { aprovado } = await searchParams;
   const requests = await getRequestsQueue();
   const urgentes = requests.filter((request) => request.urgente).length;
   const emAlinhamento = requests.filter((request) => request.status === "em_alinhamento").length;
@@ -25,6 +30,13 @@ export default async function CuradoriaFilaPage() {
           Sessão: {user.nome} · curadoria
         </span>
       </div>
+
+      {aprovado && (
+        <p role="status" className="mb-5 rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
+          Campanha aprovada. Ela ainda <b>não está no site</b>: uma pessoa com papel de editor de
+          conteúdo ou admin, diferente de quem aprovou, precisa publicá-la em “Publicar campanhas”.
+        </p>
+      )}
 
       <div className="mb-5 flex gap-2.5 rounded-xl border border-[#EBD9A8] bg-[#FDF3DC] p-4 text-[13px] text-[#6B4E10]">
         <span>⚠</span>
@@ -67,6 +79,11 @@ export default async function CuradoriaFilaPage() {
               <div>
                 <div className="font-semibold">{request.titulo}</div>
                 <div className="text-xs text-muted">{request.requerenteNome}</div>
+                {request.encaminhamentoCampanha && (
+                  <span className="mt-1 inline-block rounded-full bg-[#E3EEFB] px-2 py-0.5 text-[11px] font-semibold text-[#2B5AA0]">
+                    Encaminhado pelo Serviço Social
+                  </span>
+                )}
               </div>
               <div className="text-muted">{request.categoria}</div>
               <div className="font-mono text-[12.5px]">{request.meta > 0 ? `R$ ${formatBRL(request.meta)}` : "a definir"}</div>

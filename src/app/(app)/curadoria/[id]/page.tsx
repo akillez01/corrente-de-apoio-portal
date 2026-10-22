@@ -29,6 +29,16 @@ export default async function CuradoriaPedidoPage({ params }: { params: Promise<
         Consentimento LGPD registrado em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}.
       </div>
 
+      {request.encaminhamentoCampanha && (
+        <section className="mb-[18px] rounded-xl border border-[#C4D9F2] bg-[#E3EEFB] p-3.5 text-[12.5px] text-[#1F3F6E]">
+          <h4 className="mb-1 font-semibold">Encaminhado pelo Serviço Social para campanha</h4>
+          <p>{request.encaminhamentoCampanha.justificativa}</p>
+          <p className="mt-1 text-[11.5px] opacity-80">
+            {request.encaminhamentoCampanha.por} · {new Date(request.encaminhamentoCampanha.em).toLocaleString("pt-BR")}
+          </p>
+        </section>
+      )}
+
       {request.identificacao && (
         <section className="mb-[18px] rounded-xl border border-border bg-white p-3.5 text-[12.5px]">
           <h4 className="mb-2 font-semibold">Identificação e contato</h4>

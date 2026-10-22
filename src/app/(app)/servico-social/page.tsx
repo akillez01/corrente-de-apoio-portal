@@ -49,6 +49,11 @@ export default async function ServicoSocialPage() {
               <div className="min-w-0">
                 <div className="font-semibold">
                   {request.identificacao?.nomeSocial || request.requerenteNome}
+                  {request.encaminhamentoCampanha && (
+                    <span className="ml-2 rounded-full bg-[#E3EEFB] px-2 py-0.5 text-[11px] font-semibold text-[#2B5AA0]">
+                      campanha
+                    </span>
+                  )}
                   {request.urgente && (
                     <span className="ml-2 rounded-full bg-[#FDECE3] px-2 py-0.5 text-[11px] font-semibold text-urgent">
                       urgente

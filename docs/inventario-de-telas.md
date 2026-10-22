@@ -40,6 +40,18 @@ redirecionam para os novos (`next.config.mjs`).
 | Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
 | Minha conta (senha) | `app/(app)/conta` | qualquer conta |
 
+### Do acolhimento à campanha publicada
+
+1. **Serviço Social** (`/servico-social/[id]`): salva a ficha e usa **Encaminhar para campanha**
+   com uma justificativa → o pedido vai para `em_analise` com `encaminhamentoCampanha`.
+2. **Curadoria** (`/curadoria`): casos encaminhados aparecem primeiro, com selo; a curadoria
+   define título, meta e texto público e aprova → campanha `aprovado` (ainda não pública).
+3. **Publicar campanhas** (`/admin/campanhas`): editor de conteúdo ou admin, **diferente de quem
+   aprovou**, publica → aparece em **Doar**.
+
+A ficha do Serviço Social mostra em que etapa a campanha está. Aceitar ou encerrar um
+atendimento, sozinho, não cria campanha.
+
 ### Coleções Firestore usadas pelas novas telas
 
 | Coleção | Conteúdo | Quem lê pelo cliente (`firestore.rules`) |

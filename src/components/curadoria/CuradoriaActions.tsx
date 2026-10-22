@@ -27,7 +27,7 @@ export function CuradoriaActions({ request }: { request: SupportRequest }) {
         setError(data.error ?? "Não foi possível concluir a ação.");
         return;
       }
-      router.push("/curadoria");
+      router.push(action === "aprovar" ? "/curadoria?aprovado=1" : "/curadoria");
       router.refresh();
     } finally {
       setLoading(null);

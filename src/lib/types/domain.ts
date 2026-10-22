@@ -118,6 +118,14 @@ export interface RequestSocioeconomicSituation {
   situacaoHabitacional?: string | null;
 }
 
+// Encaminhamento do Serviço Social para a curadoria avaliar uma campanha pública.
+export interface CampaignReferral {
+  por: string;
+  porUid: string;
+  em: string;
+  justificativa: string;
+}
+
 export interface SupportRequest {
   id: string;
   requerenteId: string;
@@ -139,6 +147,7 @@ export interface SupportRequest {
   textoPublico: string;
   anexos: Attachment[];
   anexosNaoSalvos?: string[];
+  encaminhamentoCampanha?: CampaignReferral | null;
   consentimentoLgpdEm: string;
   status: RequestStatus;
   curadorId?: string;

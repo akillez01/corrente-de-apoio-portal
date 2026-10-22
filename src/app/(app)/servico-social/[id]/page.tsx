@@ -4,6 +4,8 @@ import { requireRole } from "@/lib/auth/session";
 import { getRequestById } from "@/lib/data/requests";
 import { getSocialCase } from "@/lib/data/socialCases";
 import { ProntuarioForm } from "@/components/servicoSocial/ProntuarioForm";
+import { CampanhaPanel } from "@/components/servicoSocial/CampanhaPanel";
+import { getCampaignByRequestId } from "@/lib/data/campaigns";
 
 export const revalidate = 0;
 
@@ -49,7 +51,11 @@ function Module({ title, rows }: { title: string; rows: Array<[string, string | 
 export default async function ServicoSocialCasoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   await requireRole("assistente_social", "admin");
-  const [request, socialCase] = await Promise.all([getRequestById(id), getSocialCase(id)]);
+  const [request, socialCase, campaign] = await Promise.all([
+    getRequestById(id),
+    getSocialCase(id),
+    getCampaignByRequestId(id),
+  ]);
   if (!request) notFound();
   const ident = request.identificacao;
 
@@ -125,6 +131,16 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mb-5">
+        <CampanhaPanel
+          requestId={request.id}
+          requestStatus={request.status}
+          referral={request.encaminhamentoCampanha ?? null}
+          campaign={campaign ? { status: campaign.status, slug: campaign.slug, titulo: campaign.titulo } : null}
+          caseOpen={socialCase?.status === "aberto"}
+        />
       </div>
 
       <ProntuarioForm

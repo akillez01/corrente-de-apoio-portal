@@ -13,6 +13,8 @@ export async function getRequestsQueue(): Promise<SupportRequest[]> {
   return snapshot.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }) as SupportRequest)
     .sort((a, b) => {
+      // Casos já avaliados e encaminhados pelo Serviço Social vêm primeiro.
+      if (!!a.encaminhamentoCampanha !== !!b.encaminhamentoCampanha) return a.encaminhamentoCampanha ? -1 : 1;
       if (a.urgente !== b.urgente) return a.urgente ? -1 : 1;
       return a.criadoEm.localeCompare(b.criadoEm);
     });

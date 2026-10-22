@@ -46,6 +46,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     await getAdminDb().runTransaction(async (tx) => {
       const snapshot = await tx.get(caseRef);
       const current = snapshot.exists ? (snapshot.data() as Omit<SocialCase, "id">) : null;
+      const requestRef = getAdminDb().collection("requests").doc(id);
+      const requestSnapshot = action === "encaminhar_campanha" ? await tx.get(requestRef) : null;
 
       if (action === "salvar") {
         const updates: Partial<SocialCase> = {};
@@ -102,6 +104,28 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         tx.update(caseRef, { status: "encerrado", encerramento: entry, atualizadoEm: now });
         return;
       }
+      if (action === "encaminhar_campanha") {
+        if (!texto || texto.length > MAX_TEXT) throw new RangeError("texto");
+        if (current.status === "encerrado") throw new Error("CASE_CLOSED");
+        const requestData = requestSnapshot?.data();
+        if (requestData?.encaminhamentoCampanha) throw new Error("ALREADY_REFERRED");
+        if (!["submetido", "em_analise", "em_alinhamento"].includes(String(requestData?.status))) {
+          throw new Error("REQUEST_NOT_OPEN");
+        }
+        tx.update(requestRef, {
+          status: "em_analise",
+          encaminhamentoCampanha: { por: ator, porUid: user.uid, em: now, justificativa: texto },
+          atualizadoEm: now,
+        });
+        tx.update(caseRef, {
+          evolucoes: [
+            ...current.evolucoes,
+            { ...entry, texto: `Encaminhado à curadoria para avaliação de campanha: ${texto}` },
+          ],
+          atualizadoEm: now,
+        });
+        return;
+      }
       if (action === "reabrir") {
         const reabertura: SocialCaseEntry = { ...entry, texto: "Atendimento reaberto." };
         tx.update(caseRef, {
@@ -123,6 +147,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         CASE_NOT_FOUND: ["Salve a ficha de atendimento antes desta ação.", 409],
         CASE_CLOSED: ["Atendimento encerrado. Reabra para registrar evolução.", 409],
         INVALID_ACTION: ["Ação inválida.", 400],
+        ALREADY_REFERRED: ["Este caso já foi encaminhado para campanha.", 409],
+        REQUEST_NOT_OPEN: ["O pedido já foi concluído pela curadoria e não pode ser encaminhado.", 409],
       };
       const known = messages[error.message];
       if (known) return NextResponse.json({ error: known[0] }, { status: known[1] });
