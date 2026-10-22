@@ -298,69 +298,62 @@ export function AcolhimentoForm({
         </div>
       </fieldset>
 
-      <details className="group rounded-2xl border border-border bg-white p-4 sm:p-5">
-        <summary className="cursor-pointer list-none font-serif text-lg font-semibold text-ink [&::-webkit-details-marker]:hidden">
-          2. Composição familiar <span className="text-sm font-normal text-muted">(opcional)</span>
-          <span aria-hidden="true" className="float-right transition-transform group-open:rotate-180">⌄</span>
-        </summary>
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <label className={LABEL}>
-              Quantas pessoas moram com você?
-              <input maxLength={60} value={familia.integrantes} onChange={(e) => setFamilia({ ...familia, integrantes: e.target.value })} className={INPUT} />
-            </label>
-            <label className={LABEL}>
-              Pessoas dependentes
-              <input maxLength={200} placeholder="Ex.: 2 filhos, mãe idosa" value={familia.dependentes} onChange={(e) => setFamilia({ ...familia, dependentes: e.target.value })} className={INPUT} />
-            </label>
-          </div>
-          <label className={LABEL}>
-            Faixa etária dos integrantes
-            <input maxLength={300} placeholder="Ex.: 2 adultos, 1 criança de 5 anos" value={familia.faixaEtaria} onChange={(e) => setFamilia({ ...familia, faixaEtaria: e.target.value })} className={INPUT} />
-          </label>
-          <label className={LABEL}>
-            Composição do domicílio
-            <input maxLength={300} placeholder="Quem vive na casa e qual o parentesco" value={familia.composicaoDomiciliar} onChange={(e) => setFamilia({ ...familia, composicaoDomiciliar: e.target.value })} className={INPUT} />
-          </label>
-          <label className={LABEL}>
-            Outras informações que considere importantes
-            <textarea maxLength={1500} value={familia.outrasInformacoes} onChange={(e) => setFamilia({ ...familia, outrasInformacoes: e.target.value })} className={`${INPUT} min-h-[80px] resize-y`} />
-          </label>
-        </div>
-      </details>
-
-      <details className="group rounded-2xl border border-border bg-white p-4 sm:p-5">
-        <summary className="cursor-pointer list-none font-serif text-lg font-semibold text-ink [&::-webkit-details-marker]:hidden">
-          3. Situação socioeconômica <span className="text-sm font-normal text-muted">(opcional)</span>
-          <span aria-hidden="true" className="float-right transition-transform group-open:rotate-180">⌄</span>
-        </summary>
-        <p className="mt-3 text-xs text-muted">
-          Preencha só se quiser. Quando for necessário para o atendimento, o Serviço Social
-          conversa com você sobre essas informações.
+      <fieldset className={FIELDSET}>
+        <legend className={LEGEND}>2. Composição familiar</legend>
+        <p className="text-xs text-muted">
+          Campos com * são obrigatórios. Se algo não se aplica, escreva “Nenhum”.
         </p>
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SelectField label="Situação de trabalho" value={socio.situacaoTrabalho} options={SITUACOES_TRABALHO} onChange={(value) => setSocio({ ...socio, situacaoTrabalho: value })} />
-            <SelectField label="Renda familiar mensal" value={socio.renda} options={FAIXAS_RENDA} onChange={(value) => setSocio({ ...socio, renda: value })} />
-          </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className={LABEL}>
-            Fontes de renda
-            <input maxLength={300} value={socio.fontesRenda} onChange={(e) => setSocio({ ...socio, fontesRenda: e.target.value })} className={INPUT} />
+            Quantas pessoas moram com você? *
+            <input required maxLength={60} placeholder="Ex.: 4" value={familia.integrantes} onChange={(e) => setFamilia({ ...familia, integrantes: e.target.value })} className={INPUT} />
           </label>
           <label className={LABEL}>
-            Benefícios recebidos
-            <input maxLength={300} placeholder="Ex.: Bolsa Família, BPC" value={socio.beneficios} onChange={(e) => setSocio({ ...socio, beneficios: e.target.value })} className={INPUT} />
+            Pessoas dependentes *
+            <input required maxLength={200} placeholder="Ex.: 2 filhos, mãe idosa" value={familia.dependentes} onChange={(e) => setFamilia({ ...familia, dependentes: e.target.value })} className={INPUT} />
           </label>
-          <label className={LABEL}>
-            Despesas essenciais
-            <input maxLength={300} placeholder="Ex.: aluguel, remédios, transporte" value={socio.despesasEssenciais} onChange={(e) => setSocio({ ...socio, despesasEssenciais: e.target.value })} className={INPUT} />
-          </label>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <SelectField label="Situação alimentar" value={socio.situacaoAlimentar} options={SITUACOES_ALIMENTARES} onChange={(value) => setSocio({ ...socio, situacaoAlimentar: value })} />
-            <SelectField label="Situação habitacional" value={socio.situacaoHabitacional} options={SITUACOES_HABITACIONAIS} onChange={(value) => setSocio({ ...socio, situacaoHabitacional: value })} />
-          </div>
         </div>
-      </details>
+        <label className={LABEL}>
+          Faixa etária dos integrantes *
+          <input required maxLength={300} placeholder="Ex.: 2 adultos, 1 criança de 5 anos" value={familia.faixaEtaria} onChange={(e) => setFamilia({ ...familia, faixaEtaria: e.target.value })} className={INPUT} />
+        </label>
+        <label className={LABEL}>
+          Composição do domicílio *
+          <input required maxLength={300} placeholder="Quem vive na casa e qual o parentesco" value={familia.composicaoDomiciliar} onChange={(e) => setFamilia({ ...familia, composicaoDomiciliar: e.target.value })} className={INPUT} />
+        </label>
+        <label className={LABEL}>
+          Outras informações que considere importantes (opcional)
+          <textarea maxLength={1500} value={familia.outrasInformacoes} onChange={(e) => setFamilia({ ...familia, outrasInformacoes: e.target.value })} className={`${INPUT} min-h-[80px] resize-y`} />
+        </label>
+      </fieldset>
+
+      <fieldset className={FIELDSET}>
+        <legend className={LEGEND}>3. Situação socioeconômica</legend>
+        <p className="text-xs text-muted">
+          Todos os campos são obrigatórios. Se algo não se aplica, escreva “Nenhum”; nas listas há
+          opções para preferir não informar. Essas informações são vistas só pelo Serviço Social.
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <SelectField label="Situação de trabalho *" value={socio.situacaoTrabalho} options={SITUACOES_TRABALHO} onChange={(value) => setSocio({ ...socio, situacaoTrabalho: value })} />
+          <SelectField label="Renda familiar mensal *" value={socio.renda} options={FAIXAS_RENDA} onChange={(value) => setSocio({ ...socio, renda: value })} />
+        </div>
+        <label className={LABEL}>
+          Fontes de renda *
+          <input required maxLength={300} placeholder="Ex.: trabalho informal, pensão" value={socio.fontesRenda} onChange={(e) => setSocio({ ...socio, fontesRenda: e.target.value })} className={INPUT} />
+        </label>
+        <label className={LABEL}>
+          Benefícios recebidos *
+          <input required maxLength={300} placeholder="Ex.: Bolsa Família, BPC ou “Nenhum”" value={socio.beneficios} onChange={(e) => setSocio({ ...socio, beneficios: e.target.value })} className={INPUT} />
+        </label>
+        <label className={LABEL}>
+          Despesas essenciais *
+          <input required maxLength={300} placeholder="Ex.: aluguel, remédios, transporte" value={socio.despesasEssenciais} onChange={(e) => setSocio({ ...socio, despesasEssenciais: e.target.value })} className={INPUT} />
+        </label>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <SelectField label="Situação alimentar *" value={socio.situacaoAlimentar} options={SITUACOES_ALIMENTARES} onChange={(value) => setSocio({ ...socio, situacaoAlimentar: value })} />
+          <SelectField label="Situação habitacional *" value={socio.situacaoHabitacional} options={SITUACOES_HABITACIONAIS} onChange={(value) => setSocio({ ...socio, situacaoHabitacional: value })} />
+        </div>
+      </fieldset>
 
       <fieldset className={FIELDSET}>
         <legend className={LEGEND}>4. Preciso de apoio</legend>
@@ -450,8 +443,8 @@ function SelectField({
   return (
     <label className={LABEL}>
       {label}
-      <select value={value} onChange={(e) => onChange(e.target.value)} className={INPUT}>
-        <option value="">Não informar</option>
+      <select required value={value} onChange={(e) => onChange(e.target.value)} className={INPUT}>
+        <option value="">Selecione</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}

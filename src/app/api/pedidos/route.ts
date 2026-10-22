@@ -22,6 +22,9 @@ function isFile(value: FormDataEntryValue | null): value is File {
 
 const TEXT_LIMIT = 1_500;
 
+// Módulos 2 e 3 obrigatórios (decisão do cliente em 2026-10-22); só "outras informações" é livre.
+const REQUIRED_FAMILY = FAMILY_FIELDS.filter((key) => key !== "outrasInformacoes");
+
 function text(formData: FormData, key: string, max = TEXT_LIMIT): string | null {
   const value = String(formData.get(key) ?? "").trim();
   if (value.length > max) throw new RangeError(key);
@@ -112,6 +115,8 @@ export async function POST(req: Request) {
     (formaContato === "E-mail" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contato)) ||
     (formaContato !== "E-mail" && contato.replace(/\D/g, "").length < 8) ||
     (fields.dataNascimento && fields.idade === null) ||
+    !REQUIRED_FAMILY.every((key) => fields.composicaoFamiliar?.[key]) ||
+    !SOCIOECONOMIC_FIELDS.every((key) => fields.situacaoSocioeconomica?.[key]) ||
     categorias.length === 0 ||
     categorias.some((categoria) => !(CATEGORIAS_DEMANDA as readonly string[]).includes(categoria))
   ) {

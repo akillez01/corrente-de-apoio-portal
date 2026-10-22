@@ -13,7 +13,7 @@ redirecionam para os novos (`next.config.mjs`).
 | --- | --- | --- |
 | Início | `app/[locale]/page.tsx` | Apresentação + cinco atalhos com ícones (Preciso de ajuda, Doar, Voluntariar, Projetar, Integrar) |
 | O que é? | `app/[locale]/o-que-e/page.tsx` | “Nossa identidade” e os seis princípios (antes na home) |
-| Preciso de Ajuda | `app/[locale]/preciso-de-ajuda/page.tsx` | Cadastro de acolhimento em 4 módulos (`AcolhimentoForm`), cria a conta do requerente |
+| Preciso de Ajuda | `app/[locale]/preciso-de-ajuda/page.tsx` | Cadastro de acolhimento em 4 módulos (`AcolhimentoForm`), cria a conta do requerente; módulos 2 e 3 obrigatórios desde 2026-10-22 (exceto “outras informações”) |
 | Doar | `app/[locale]/doar/page.tsx` | Campanhas abertas por data de publicação; detalhe em `app/[locale]/campanha/[slug]` |
 | Voluntariar | `app/[locale]/voluntariar/page.tsx` | Identificação + “Posso oferecer” (`VoluntarioForm`) |
 | Projetar | `app/[locale]/projetar/page.tsx`, `projetar/[slug]` | Projetos aprovados + cadastro; página própria com link de divulgação |
