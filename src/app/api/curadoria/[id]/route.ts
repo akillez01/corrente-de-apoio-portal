@@ -55,9 +55,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
     const titulo = typeof body.titulo === "string" && body.titulo.trim() ? body.titulo.trim() : request.titulo;
     const meta = Number.isFinite(body.meta) && body.meta > 0 ? Number(body.meta) : request.meta;
-    if (titulo.length > 140 || !(meta > 0)) {
+    if (titulo.length > 140) {
+      return NextResponse.json({ error: "O título deve ter até 140 caracteres." }, { status: 400 });
+    }
+    if (!(meta > 0)) {
       return NextResponse.json(
-        { error: "Defina um título (até 140 caracteres) e uma meta maior que zero para criar a campanha." },
+        { error: "Informe a meta da campanha em reais (maior que zero) antes de aprovar." },
         { status: 400 },
       );
     }
