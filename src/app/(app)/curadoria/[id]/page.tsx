@@ -19,7 +19,11 @@ export default async function CuradoriaPedidoPage({ params }: { params: Promise<
           <h1 className="font-serif text-xl font-semibold">{request.titulo}</h1>
           <div className="mt-1 font-mono text-xs text-muted">
             {request.requerenteNome} · {request.meta > 0 ? `meta R$ ${formatBRL(request.meta)}` : "meta a definir"}
-            {request.urgente ? " · urgente" : ""}
+            {request.prioridadeSocial
+              ? ` · prioridade ${request.prioridadeSocial.nivel} (Serviço Social)`
+              : request.urgente
+                ? " · urgente (informado pela pessoa, ainda não avaliado)"
+                : ""}
           </div>
         </div>
       </div>

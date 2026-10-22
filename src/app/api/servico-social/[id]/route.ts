@@ -5,6 +5,7 @@ import { getRequestById } from "@/lib/data/requests";
 import { SOCIAL_CASES_COLLECTION } from "@/lib/data/socialCases";
 import { appendAuditLog } from "@/lib/audit";
 import type { SocialCase, SocialCaseEntry } from "@/lib/types/domain";
+import { isPrioridade, PRIORIDADE_LABEL } from "@/lib/domain/prioridade";
 
 const TEXT_FIELDS = [
   "demandaApresentada",
@@ -47,7 +48,34 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       const snapshot = await tx.get(caseRef);
       const current = snapshot.exists ? (snapshot.data() as Omit<SocialCase, "id">) : null;
       const requestRef = getAdminDb().collection("requests").doc(id);
-      const requestSnapshot = action === "encaminhar_campanha" ? await tx.get(requestRef) : null;
+      const requestSnapshot =
+        action === "encaminhar_campanha" || action === "prioridade" ? await tx.get(requestRef) : null;
+
+      if (action === "prioridade") {
+        const nivel = body.nivel;
+        if (!isPrioridade(nivel)) throw new RangeError("nivel");
+        const requestData = requestSnapshot?.data();
+        if (!requestData) throw new Error("REQUEST_NOT_FOUND");
+        tx.update(requestRef, {
+          prioridadeSocial: { nivel, por: ator, porUid: user.uid, em: now },
+          urgente: nivel === "urgente",
+          // Guarda a marcação original da pessoa na primeira vez que a assistente decide.
+          ...(requestData.urgenteInformadoPeloRequerente === undefined
+            ? { urgenteInformadoPeloRequerente: Boolean(requestData.urgente) }
+            : {}),
+          atualizadoEm: now,
+        });
+        if (current) {
+          tx.update(caseRef, {
+            evolucoes: [
+              ...current.evolucoes,
+              { data: now, texto: `Prioridade definida: ${PRIORIDADE_LABEL[nivel]}.`, autor: ator, autorUid: user.uid },
+            ],
+            atualizadoEm: now,
+          });
+        }
+        return;
+      }
 
       if (action === "salvar") {
         const updates: Partial<SocialCase> = {};
@@ -147,6 +175,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         CASE_NOT_FOUND: ["Salve a ficha de atendimento antes desta ação.", 409],
         CASE_CLOSED: ["Atendimento encerrado. Reabra para registrar evolução.", 409],
         INVALID_ACTION: ["Ação inválida.", 400],
+        REQUEST_NOT_FOUND: ["Cadastro não encontrado.", 404],
         ALREADY_REFERRED: ["Este caso já foi encaminhado para campanha.", 409],
         REQUEST_NOT_OPEN: ["O pedido já foi concluído pela curadoria e não pode ser encaminhado.", 409],
       };

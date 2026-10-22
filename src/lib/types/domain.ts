@@ -126,6 +126,14 @@ export interface CampaignReferral {
   justificativa: string;
 }
 
+// Prioridade atribuída pela assistente social (ver src/lib/domain/prioridade.ts).
+export interface SocialPriority {
+  nivel: "normal" | "alta" | "urgente";
+  por: string;
+  porUid: string;
+  em: string;
+}
+
 export interface SupportRequest {
   id: string;
   requerenteId: string;
@@ -148,6 +156,8 @@ export interface SupportRequest {
   anexos: Attachment[];
   anexosNaoSalvos?: string[];
   encaminhamentoCampanha?: CampaignReferral | null;
+  prioridadeSocial?: SocialPriority | null;
+  urgenteInformadoPeloRequerente?: boolean;
   consentimentoLgpdEm: string;
   status: RequestStatus;
   curadorId?: string;

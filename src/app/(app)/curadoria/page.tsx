@@ -1,4 +1,5 @@
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { PrioridadeBadge } from "@/components/servicoSocial/PrioridadeBadge";
 import { StatusChip } from "@/components/StatusChip";
 import { requireRole } from "@/lib/auth/session";
 import { getRequestsQueue } from "@/lib/data/requests";
@@ -79,6 +80,7 @@ export default async function CuradoriaFilaPage({
               <div>
                 <div className="font-semibold">{request.titulo}</div>
                 <div className="text-xs text-muted">{request.requerenteNome}</div>
+                <PrioridadeBadge request={request} />
                 {request.encaminhamentoCampanha && (
                   <span className="mt-1 inline-block rounded-full bg-[#E3EEFB] px-2 py-0.5 text-[11px] font-semibold text-[#2B5AA0]">
                     Encaminhado pelo Serviço Social

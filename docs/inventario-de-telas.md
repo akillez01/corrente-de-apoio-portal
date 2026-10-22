@@ -51,7 +51,10 @@ redirecionam para os novos (`next.config.mjs`).
    aprovou; para voltar a exigir duas pessoas, mude `PUBLICACAO_EXIGE_OUTRA_PESSOA` para `true`
    em `src/lib/domain/publicacao.ts`. A auditoria registra quando a mesma pessoa aprovou e publicou.
 
-A ficha do Serviço Social mostra em que etapa a campanha está. Aceitar ou encerrar um
+A assistente social define a **prioridade do caso** (Normal, Alta, Urgente) na ficha; essa
+avaliação substitui a marcação de urgência feita pela pessoa (guardada em
+`urgenteInformadoPeloRequerente`), ordena as filas do Serviço Social e da Curadoria e define o
+selo “Urgente” da campanha. A ficha do Serviço Social mostra em que etapa a campanha está. Aceitar ou encerrar um
 atendimento, sozinho, não cria campanha.
 
 ### Coleções Firestore usadas pelas novas telas

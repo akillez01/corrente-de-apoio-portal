@@ -5,6 +5,7 @@ import { getRequestById } from "@/lib/data/requests";
 import { getSocialCase } from "@/lib/data/socialCases";
 import { ProntuarioForm } from "@/components/servicoSocial/ProntuarioForm";
 import { CampanhaPanel } from "@/components/servicoSocial/CampanhaPanel";
+import { PrioridadePanel } from "@/components/servicoSocial/PrioridadePanel";
 import { getCampaignByRequestId } from "@/lib/data/campaigns";
 
 export const revalidate = 0;
@@ -69,7 +70,11 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
       </h1>
       <p className="mb-4 mt-1 text-xs text-muted">
         Cadastro recebido em {new Date(request.criadoEm).toLocaleString("pt-BR")}
-        {request.urgente ? " · marcado como urgente" : ""}
+        {request.prioridadeSocial
+          ? ` · prioridade ${request.prioridadeSocial.nivel}`
+          : request.urgente
+            ? " · marcado como urgente pela pessoa"
+            : ""}
         {" · "}consentimento LGPD em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}
       </p>
 
@@ -131,6 +136,14 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
             ))}
           </div>
         )}
+      </div>
+
+      <div className="mb-5">
+        <PrioridadePanel
+          requestId={request.id}
+          prioridade={request.prioridadeSocial ?? null}
+          urgenteInformado={request.urgenteInformadoPeloRequerente ?? request.urgente}
+        />
       </div>
 
       <div className="mb-5">

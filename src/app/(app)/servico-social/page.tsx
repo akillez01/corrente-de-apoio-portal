@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth/session";
 import { getRequestsForSocialWork } from "@/lib/data/requests";
 import { getSocialCaseStatuses } from "@/lib/data/socialCases";
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { PrioridadeBadge } from "@/components/servicoSocial/PrioridadeBadge";
 
 export const revalidate = 0;
 
@@ -54,11 +55,7 @@ export default async function ServicoSocialPage() {
                       campanha
                     </span>
                   )}
-                  {request.urgente && (
-                    <span className="ml-2 rounded-full bg-[#FDECE3] px-2 py-0.5 text-[11px] font-semibold text-urgent">
-                      urgente
-                    </span>
-                  )}
+                  <PrioridadeBadge request={request} />
                 </div>
                 <div className="mt-0.5 text-xs text-muted">
                   {(request.categorias ?? [request.categoria]).join(", ")}
