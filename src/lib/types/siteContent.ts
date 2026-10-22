@@ -543,7 +543,9 @@ export const DEFAULT_PUBLIC_CONTENT: Record<Locale, Record<PublicPageId, PublicP
 };
 
 export function getPageCopyDefaults(pageId: PublicPageId, locale: Locale): PublicPageCopy {
-  return DEFAULT_PUBLIC_CONTENT[locale][pageId];
+  // Segmentos que não são idioma (ex.: /robots.txt) caem em [locale]; o layout responde 404,
+  // mas a página pode renderizar antes — o português evita o erro 500 nesse meio-tempo.
+  return (DEFAULT_PUBLIC_CONTENT[locale] ?? DEFAULT_PUBLIC_CONTENT.pt)[pageId];
 }
 
 // Imagens do site vêm do próprio domínio (upload em /api/site-media ou /public).

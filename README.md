@@ -33,6 +33,8 @@ npm install
 npm run dev
 ```
 
+Para dados de exemplo, rode `FIRESTORE_EMULATOR_HOST=localhost:8085 FIREBASE_AUTH_EMULATOR_HOST=localhost:9099 node scripts/seed-emulator.js` (senha das contas: `senha123`).
+
 Abra [http://localhost:3000/pt](http://localhost:3000/pt). A página inicial e as campanhas
 leem o Firestore Emulator na porta configurada em `.env.local`.
 
@@ -40,9 +42,10 @@ leem o Firestore Emulator na porta configurada em `.env.local`.
 
 O portal está publicado na Vercel em [www.daimesolidariedade.org](https://www.daimesolidariedade.org).
 O domínio raiz [daimesolidariedade.org](https://daimesolidariedade.org) redireciona para `www`.
-O deploy de produção foi validado em 2026-10-12. Os avisos de novos cadastros por e-mail ainda
-dependem da configuração do Resend e das variáveis de produção; detalhes operacionais,
-domínios autorizados no Firebase e checklist estão em `docs/deploy-vercel.md`.
+A reorganização do menu e das páginas foi publicada em 2026-10-22; um push na `main` publica
+automaticamente em produção. Os avisos de novos cadastros por e-mail ainda dependem da
+configuração do Resend; detalhes operacionais, histórico de correções e pendências estão em
+`docs/deploy-vercel.md`, e o mapa de telas e coleções em `docs/inventario-de-telas.md`.
 
 Para ver o protótipo visual original (referência de design):
 

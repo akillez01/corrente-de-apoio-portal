@@ -3,26 +3,52 @@
 
 # Inventário de telas — Portal Daime Solidariedade
 
-| Tela / aba | Rota App Router | Acesso | Estado |
-| --- | --- | --- | --- |
-| Início | `app/[locale]/page.tsx` | Público | Apresentação do portal e seção “Nossa identidade” com os seis princípios/orientações, abaixo do destaque principal; CTA para integrar a rede. |
-| Preciso de apoio | `app/[locale]/preciso-de-apoio/page.tsx` | Público; pedido exige login | Implementado; CTA segue para o formulário autenticado já existente. |
-| Voluntariado | `app/[locale]/voluntarios/page.tsx` | Público | Formulário de voluntariado existente, integrado à navegação. |
-| Novo pedido de apoio | `app/(app)/meus-pedidos/novo/page.tsx` | Requerente autenticado | Formulário completo com dados de contato, categoria, meta, prazo, urgência, descrição, anexos até 4 MB e consentimento LGPD; detalhes em `docs/arquitetura-daime-solidariedade.md`. |
-| Campanhas | `app/[locale]/campanhas/page.tsx` | Público | Implementado; lista apenas campanhas públicas existentes e mostra estado vazio. |
-| Campanha (detalhe) | `app/[locale]/campanha/[slug]/page.tsx` | Público | Página de campanha existente. Verificar disponibilidade do pagamento real antes de ativá-lo. |
-| Como funciona | `app/[locale]/como-funciona/page.tsx` | Público | Implementado com fluxo institucional, sem afirmar capacidades ainda não comprovadas. |
-| Projetos | `app/[locale]/projetos/page.tsx` | Público | Página de apresentação; cadastro digital ainda pendente. |
-| Mulheres | `app/[locale]/mulheres/page.tsx` | Público | Frente apresentada como em construção. |
-| Juventude | `app/[locale]/juventude/page.tsx` | Público | Frente apresentada como em construção, com nota de salvaguardas. |
-| Transparência | `app/[locale]/transparencia/page.tsx` | Público | Compromissos e ligação a campanhas; não inventa métricas nem auditorias. |
-| Curadoria — fila | `app/(app)/curadoria/page.tsx` | `curador`, `admin` | Área autenticada existente. |
-| Curadoria — pedido | `app/(app)/curadoria/[id]/page.tsx` | `curador`, `admin` | Área autenticada existente. |
-| Financeiro — repasses | `app/(app)/financeiro/page.tsx` | `financeiro`, `admin` | Área financeira existente. |
-| Dashboard do requerente | `app/(app)/meus-pedidos/page.tsx` | `requerente` | Área autenticada existente. |
-| Admin de usuários | `app/(app)/admin/usuarios/page.tsx` | `admin` | Área administrativa existente. |
-| Editor de conteúdo | `app/(app)/admin/conteudo/page.tsx` | `editor_conteudo`, `admin` | Edita textos e imagens das páginas públicas em PT/EN; formulários e conteúdo interno ficam protegidos. |
-| Publicação de campanhas | `app/(app)/admin/campanhas/page.tsx` | `editor_conteudo`, `admin` | Fila de campanhas já aprovadas pela curadoria; publicação exige UID diferente do aprovador. |
+Estado em 2026-10-22, após a reorganização do menu pedida pelo cliente. Endereços antigos
+(`/campanhas`, `/voluntarios`, `/projetos`, `/preciso-de-apoio`, `/daime-solidariedade`)
+redirecionam para os novos (`next.config.mjs`).
+
+### Páginas públicas (menu, nesta ordem)
+
+| Menu | Rota App Router | Conteúdo |
+| --- | --- | --- |
+| Início | `app/[locale]/page.tsx` | Apresentação + cinco atalhos com ícones (Preciso de ajuda, Doar, Voluntariar, Projetar, Integrar) |
+| O que é? | `app/[locale]/o-que-e/page.tsx` | “Nossa identidade” e os seis princípios (antes na home) |
+| Preciso de Ajuda | `app/[locale]/preciso-de-ajuda/page.tsx` | Cadastro de acolhimento em 4 módulos (`AcolhimentoForm`), cria a conta do requerente |
+| Doar | `app/[locale]/doar/page.tsx` | Campanhas abertas por data de publicação; detalhe em `app/[locale]/campanha/[slug]` |
+| Voluntariar | `app/[locale]/voluntariar/page.tsx` | Identificação + “Posso oferecer” (`VoluntarioForm`) |
+| Projetar | `app/[locale]/projetar/page.tsx`, `projetar/[slug]` | Projetos aprovados + cadastro; página própria com link de divulgação |
+| Integrar | `app/[locale]/integrar/page.tsx` | Pontos do Santo Daime aprovados, por país + cadastro |
+| Mulheres | `app/[locale]/mulheres/page.tsx`, `mulheres/apoio` | Iniciativas + página de suporte (Ligue 180/190, cadastro, e-mail) |
+| Juventude | `app/[locale]/juventude/page.tsx` | Ações que conectam os mais antigos aos mais novos |
+| Notícias | `app/[locale]/noticias/page.tsx`, `noticias/[slug]` | Matérias publicadas pelo painel + matéria legada da Fazenda São Sebastião |
+| Transparência | `app/[locale]/transparencia/page.tsx` | Arrecadado e repassado por campanha, com totais |
+| (fora do menu) | `app/[locale]/como-funciona/page.tsx` | Fluxo institucional |
+
+### Área interna
+
+| Tela | Rota | Acesso |
+| --- | --- | --- |
+| Meus pedidos / novo cadastro | `app/(app)/meus-pedidos`, `meus-pedidos/novo` | `requerente` |
+| Serviço Social — casos e ficha | `app/(app)/servico-social`, `servico-social/[id]` | `assistente_social`, `admin` |
+| Curadoria — fila e pedido (define título e meta ao aprovar) | `app/(app)/curadoria`, `curadoria/[id]` | `curador`, `admin` |
+| Voluntários do Daime (diretório com filtros) | `app/(app)/voluntarios` | `curador`, `assistente_social`, `admin` |
+| Financeiro — repasses | `app/(app)/financeiro` | `financeiro`, `admin` |
+| Projetos e pontos (moderação) | `app/(app)/admin/moderacao` | `editor_conteudo`, `admin` |
+| Notícias (criar/editar/excluir) | `app/(app)/admin/noticias`, `admin/noticias/[id]` | `editor_conteudo`, `admin` |
+| Conteúdo do site (textos PT/EN) | `app/(app)/admin/conteudo` | `editor_conteudo`, `admin` |
+| Publicação de campanhas | `app/(app)/admin/campanhas` | `editor_conteudo`, `admin` (UID diferente do aprovador) |
+| Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
+| Minha conta (senha) | `app/(app)/conta` | qualquer conta |
+
+### Coleções Firestore usadas pelas novas telas
+
+| Coleção | Conteúdo | Quem lê pelo cliente (`firestore.rules`) |
+| --- | --- | --- |
+| `requests` | Cadastro de acolhimento (módulos 1–4) | dono, `curador`, `assistente_social`, `admin` |
+| `atendimentos_sociais` | Prontuário do Serviço Social (id = id do pedido) | `assistente_social`, `admin` |
+| `volunteer_applications` | Cadastro de voluntários (`versao: 2` no formato novo) | ninguém (só servidor) |
+| `projetos`, `pontos` | Cadastros públicos com `status` pendente/aprovado/reprovado | `editor_conteudo`, `admin` |
+| `noticias` | Matérias (`rascunho`/`publicado`) | publicadas: todos; demais: `editor_conteudo`, `admin` |
 
 ## Componentes reutilizáveis identificados
 
@@ -41,11 +67,7 @@ Instagram do portal.
 
 ## Próximas implementações
 
-- Fluxo de atendimento do Serviço Social com registro técnico segregado e permissões próprias.
-- Proposta e gestão de projetos, Escritório de Projetos e oportunidades.
-- Governança e aprovação institucional configuráveis e auditáveis.
-- Revisão de segurança para coleta, exposição e retenção de dados no cadastro de voluntariado.
-- Teste funcional autenticado das novas rotas de edição e publicação; atribuição da role no Firebase.
-- Prestação de contas, painel financeiro e auditoria independente conforme decisões formais.
-- Traduções completas para inglês; rotas de campanha e comunicação existentes ainda precisam
-  de revisão de consistência com a nova identidade.
+- Versão em inglês do cadastro de acolhimento, das telas internas e das notícias.
+- Relatórios do Serviço Social (exportação de atendimentos por período e categoria).
+- Pagamento real (Pix) nas campanhas; a rota de simulação segue bloqueada em produção.
+- Envio de avisos por e-mail (Resend) e rotina de backup do Firestore.

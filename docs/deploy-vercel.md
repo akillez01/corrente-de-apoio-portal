@@ -70,7 +70,7 @@ Registro da migração de hospedagem feita em 2026-09-21. Nenhum segredo está n
 
 ## Logins
 
-- Papéis: `requerente`, `curador`, `financeiro`, `editor_conteudo`, `admin`.
+- Papéis: `requerente`, `curador`, `assistente_social`, `financeiro`, `editor_conteudo`, `admin`.
 - Produção: `achilles.oliveira.souza@gmail.com` (admin, via Google) e `admin@corrente.dev` (admin, e-mail/senha; senha gerada em 2026-08-01, não registrada aqui).
 - Login Google de conta nova vira `requerente` automaticamente; os demais papéis só são atribuídos por um admin em `/admin/usuarios`.
 - Contas `*@corrente.dev` com senha `senha123` existem só no emulador (`scripts/seed-emulator.js`). Remover/rotacionar o `admin@corrente.dev` de produção quando houver outro admin.
@@ -111,15 +111,19 @@ Registro da migração de hospedagem feita em 2026-09-21. Nenhum segredo está n
 
 ## Pendências / riscos
 
-1. **Teste funcional autenticado do upload:** o deploy e as rotas públicas foram validados, mas
-   ainda é necessário entrar com um usuário requerente e enviar um anexo pequeno pela tela
-   **Meus pedidos → Novo pedido**.
-2. **Avisos por e-mail:** configurar as quatro variáveis listadas acima no ambiente Production
-   da Vercel e fazer novo deploy. Até lá, os cadastros são persistidos, mas não há envio de e-mail.
-3. **Firebase Authentication:** confirmar que os domínios raiz e `www` estão na lista de
-   Authorized domains; a disponibilidade HTTPS do site já foi validada.
-4. Mercado Pago (Pix) real continua não implementado; a rota de simulação segue bloqueada em produção.
-5. Sem backup automático dos dados: o Firestore não tem rotina de export configurada.
+Atualizado em 2026-10-22.
+
+1. **Avisos por e-mail:** configurar `RESEND_API_KEY`, `RESEND_FROM_EMAIL`,
+   `SYSTEM_NOTIFICATION_EMAIL` e `NEXT_PUBLIC_APP_URL` no ambiente Production e fazer novo
+   deploy. Até lá, os cadastros são salvos, mas não há envio de e-mail.
+2. **Firebase Authentication:** confirmar que os domínios raiz e `www` estão na lista de
+   Authorized domains.
+3. Mercado Pago (Pix) real continua não implementado; a rota de simulação segue bloqueada em produção.
+4. Sem backup automático dos dados: o Firestore não tem rotina de export configurada.
+5. **Contas e dados de teste em produção:** `servicosocial.teste1@` e
+   `servicosocial.teste2@daimesolidariedade.org` (papel `assistente_social`) e os cadastros de
+   teste devem ser removidos ao fim do período de testes.
+6. Cadastro de acolhimento, telas internas e notícias novas ainda só em português.
 
 ## Registro de validação — 2026-09-21
 
@@ -180,3 +184,54 @@ npx vercel env ls          # conferir variáveis
   privado separado.
 - As alterações do painel ainda não foram implantadas em produção. Teste autenticado com
   contas autorizadas é pendente; o build local e as verificações de tipos/ESLint passaram.
+
+## Reorganização do portal — publicada em 2026-10-22
+
+Pedido do cliente: novo menu (O que é? · Preciso de Ajuda · Doar · Voluntariar · Projetar ·
+Integrar · Mulheres · Juventude · Notícias · Transparência). Telas e coleções estão em
+`docs/inventario-de-telas.md`.
+
+- **Rotas novas** com redirecionamento permanente das antigas (`next.config.mjs`).
+- **Preciso de ajuda:** cadastro em 4 módulos que cria a conta (Firebase Auth, papel
+  `requerente`) e grava em `requests`. A meta deixou de ser obrigatória; a curadoria define
+  título e meta ao aprovar uma campanha.
+- **Serviço Social:** papel `assistente_social` e prontuário em `atendimentos_sociais`
+  (`/servico-social`). O audit log registra só quem alterou e quando, nunca o conteúdo.
+- **Voluntariar:** identificação + “Posso oferecer”; diretório `/voluntarios` só para a equipe.
+- **Projetar / Integrar:** cadastros públicos (`projetos`, `pontos`) com moderação em
+  `/admin/moderacao`; e-mail e telefone dos responsáveis nunca aparecem nas páginas públicas.
+- **Notícias:** coleção `noticias`, gerenciada em `/admin/noticias`.
+- **Textos:** `getPublicPageCopy` ignora campos salvos que não existem mais nos padrões.
+  `scripts/migrar-conteudo-reorganizacao.js` (dry-run por padrão, `--confirm` para aplicar)
+  foi executado em produção e não encontrou nada a migrar.
+- **Firestore rules** publicadas com `firebase deploy --only firestore:rules --project corrente-de-apoio`.
+- **Criar conta com papel:** `node scripts/create-admin-user.js --target=production --role=assistente_social --email=... --password=... --nome="..."`.
+- **Deploy:** push na `main` dispara deploy de produção automático na Vercel (integração Git);
+  `vercel deploy --prod` continua disponível.
+
+### Anexos (Cloudflare R2) — corrigido em 2026-10-22
+
+- **Sintoma:** cadastro com anexo falhava com “Credenciais do R2 incompletas”.
+- **Causa:** `R2_ACCESS_KEY_ID` e `R2_SECRET_ACCESS_KEY` chegavam vazias em tempo de execução,
+  e o token R2 do bucket `apoio-social` não existia mais no Cloudflare.
+- **Correção:** novo token de conta no Cloudflare (`daime-solidariedade-anexos`, leitura e
+  escrita de objetos) e as duas variáveis recadastradas em Production como Sensitive;
+  novo deploy de produção. Após o deploy, um cadastro em produção não registrou falha de anexo
+  nos logs.
+- **Resiliência:** se o armazenamento falhar de novo, o pedido é salvo sem os arquivos, a pessoa
+  vê um aviso e a ficha mostra quais anexos não foram salvos (`anexosNaoSalvos`); o erro técnico
+  fica só no log (`Falha ao salvar anexos do pedido`).
+- **Diagnóstico:** `vercel logs <deployment> | grep -i anexo`. A CLI não mostra valores de
+  variáveis Sensitive; um valor de 11 caracteres no `env pull` é o marcador `[encrypted]`.
+
+### robots.txt e sitemap.xml — corrigido em 2026-10-22
+
+- `/robots.txt` e `/sitemap.xml` caíam na rota `[locale]` e retornavam 500. Agora existem
+  `src/app/robots.ts` (bloqueia áreas internas e APIs) e `src/app/sitemap.ts` (páginas públicas,
+  campanhas, projetos aprovados e notícias, em PT e EN). Segmentos que não são idioma retornam 404.
+
+### Material de teste
+
+- Guia geral para testadores: https://claude.ai/artifact/5wkGoeirfALEs1tbY41qpp
+- Teste rápido de cadastro com anexo: https://claude.ai/artifact/4apkD5ZqziawSGfnV4LNhY
+- Senhas das contas de teste são entregues por mensagem privada e não constam nos documentos.
