@@ -32,7 +32,7 @@ function stage(
   if (campaign) {
     return {
       label: "Aprovada — aguardando publicação",
-      detail: "A curadoria aprovou. Uma pessoa do conteúdo (diferente de quem aprovou) precisa publicar em “Publicar campanhas”.",
+      detail: "A curadoria aprovou. Falta o admin publicar em “Publicar campanhas”.",
     };
   }
   if (requestStatus === "reprovado") {
@@ -50,7 +50,7 @@ function stage(
 }
 
 // Ponte entre o atendimento social e a campanha pública: o Serviço Social encaminha,
-// a curadoria aprova e outra pessoa publica (separação de responsabilidades).
+// a curadoria aprova e o admin publica (ver src/lib/domain/publicacao.ts).
 export function CampanhaPanel({
   requestId,
   requestStatus,
@@ -121,7 +121,7 @@ export function CampanhaPanel({
         <form onSubmit={encaminhar} className="flex flex-col gap-2">
           <p className="text-[13px] text-muted">
             Se a situação pede uma campanha de arrecadação, encaminhe para a curadoria. Ela define
-            título, meta e texto público; depois outra pessoa publica, e a campanha aparece em Doar.
+            título, meta e texto público; depois o admin publica, e a campanha aparece em Doar.
             Nenhum dado do prontuário é enviado — só a justificativa abaixo.
           </p>
           <label className="block text-[11.5px] font-semibold uppercase tracking-wider text-muted">

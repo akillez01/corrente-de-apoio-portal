@@ -36,7 +36,7 @@ redirecionam para os novos (`next.config.mjs`).
 | Projetos e pontos (moderação) | `app/(app)/admin/moderacao` | `editor_conteudo`, `admin` |
 | Notícias (criar/editar/excluir) | `app/(app)/admin/noticias`, `admin/noticias/[id]` | `editor_conteudo`, `admin` |
 | Conteúdo do site (textos PT/EN) | `app/(app)/admin/conteudo` | `editor_conteudo`, `admin` |
-| Publicação de campanhas | `app/(app)/admin/campanhas` | `editor_conteudo`, `admin` (UID diferente do aprovador) |
+| Publicação de campanhas | `app/(app)/admin/campanhas` | somente `admin` (pode publicar o que aprovou; ver `src/lib/domain/publicacao.ts`) |
 | Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
 | Minha conta (senha) | `app/(app)/conta` | qualquer conta |
 
@@ -46,8 +46,10 @@ redirecionam para os novos (`next.config.mjs`).
    com uma justificativa → o pedido vai para `em_analise` com `encaminhamentoCampanha`.
 2. **Curadoria** (`/curadoria`): casos encaminhados aparecem primeiro, com selo; a curadoria
    define título, meta e texto público e aprova → campanha `aprovado` (ainda não pública).
-3. **Publicar campanhas** (`/admin/campanhas`): editor de conteúdo ou admin, **diferente de quem
-   aprovou**, publica → aparece em **Doar**.
+3. **Publicar campanhas** (`/admin/campanhas`): o **admin** publica → aparece em **Doar**.
+   Desde 2026-10-22, por decisão do cliente, só o admin publica e pode publicar o que ele mesmo
+   aprovou; para voltar a exigir duas pessoas, mude `PUBLICACAO_EXIGE_OUTRA_PESSOA` para `true`
+   em `src/lib/domain/publicacao.ts`. A auditoria registra quando a mesma pessoa aprovou e publicou.
 
 A ficha do Serviço Social mostra em que etapa a campanha está. Aceitar ou encerrar um
 atendimento, sozinho, não cria campanha.

@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getSessionUser } from "@/lib/auth/session";
 import { getAdminDb } from "@/lib/firebase/admin";
 import type { Campaign } from "@/lib/types/domain";
+import { PUBLICACAO_EXIGE_OUTRA_PESSOA } from "@/lib/domain/publicacao";
 
 const SITE_MEDIA_URL = /^\/api\/site-media\/[A-Za-z0-9_-]+\/[a-f0-9-]+\.(?:jpg|png|webp|avif)$/;
 
@@ -11,8 +12,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const user = await getSessionUser();
-  if (!user || (user.role !== "editor_conteudo" && user.role !== "admin")) {
-    return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+  if (!user || user.role !== "admin") {
+    return NextResponse.json({ error: "Somente o admin pode publicar campanhas." }, { status: 403 });
   }
 
   const { id } = await params;
@@ -42,7 +43,7 @@ export async function POST(
       if (!snapshot.exists) throw new Error("CAMPAIGN_NOT_FOUND");
       const current = { id: snapshot.id, ...snapshot.data() } as Campaign;
       if (current.status !== "aprovado") throw new Error("CAMPAIGN_NOT_APPROVED");
-      if (current.aprovadoPorUid && current.aprovadoPorUid === user.uid) {
+      if (PUBLICACAO_EXIGE_OUTRA_PESSOA && current.aprovadoPorUid && current.aprovadoPorUid === user.uid) {
         throw new Error("SEPARATION_OF_DUTIES");
       }
       tx.update(ref, {
@@ -57,7 +58,11 @@ export async function POST(
         tipo: "campanha_publicada",
         ator: user.nome ?? user.email ?? user.uid,
         alvo: id,
-        detalhes: { slug: current.slug, aprovadoPorUid: current.aprovadoPorUid ?? null },
+        detalhes: {
+          slug: current.slug,
+          aprovadoPorUid: current.aprovadoPorUid ?? null,
+          mesmaPessoaAprovouEPublicou: current.aprovadoPorUid === user.uid,
+        },
         timestamp: now,
       });
       return current;

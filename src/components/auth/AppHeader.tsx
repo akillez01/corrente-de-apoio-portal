@@ -19,7 +19,7 @@ const NAV: { href: string; label: string; roles: string[] }[] = [
   { href: "/meus-pedidos", label: "Meus pedidos", roles: ["requerente"] },
   { href: "/admin/usuarios", label: "Usuários", roles: ["admin"] },
   { href: "/admin/conteudo", label: "Conteúdo do site", roles: ["editor_conteudo", "admin"] },
-  { href: "/admin/campanhas", label: "Publicar campanhas", roles: ["editor_conteudo", "admin"] },
+  { href: "/admin/campanhas", label: "Publicar campanhas", roles: ["admin"] },
   { href: "/admin/moderacao", label: "Projetos e pontos", roles: ["editor_conteudo", "admin"] },
   { href: "/admin/noticias", label: "Notícias", roles: ["editor_conteudo", "admin"] },
   { href: "/admin/atendimentos", label: "Assistente", roles: ["admin"] },

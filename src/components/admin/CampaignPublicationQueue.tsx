@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Campaign } from "@/lib/types/domain";
+import { PUBLICACAO_EXIGE_OUTRA_PESSOA } from "@/lib/domain/publicacao";
 
 export function CampaignPublicationQueue({
   campaigns,
@@ -75,7 +76,7 @@ export function CampaignPublicationQueue({
     <div className="space-y-4">
       {notice && <p role="status" className="rounded-xl bg-[#EDF6EF] p-3 text-sm text-primary">{notice}</p>}
       {campaigns.map((campaign) => {
-        const mustUseAnotherPerson = campaign.aprovadoPorUid === userId;
+        const mustUseAnotherPerson = PUBLICACAO_EXIGE_OUTRA_PESSOA && campaign.aprovadoPorUid === userId;
         const imageUrl = images[campaign.id] ?? campaign.imageUrl ?? "";
         return (
           <article key={campaign.id} className="grid gap-5 rounded-2xl border border-border bg-white p-4 sm:p-5 lg:grid-cols-[1fr_260px]">

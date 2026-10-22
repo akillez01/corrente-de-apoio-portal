@@ -33,8 +33,8 @@ export default async function CuradoriaFilaPage({
 
       {aprovado && (
         <p role="status" className="mb-5 rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
-          Campanha aprovada. Ela ainda <b>não está no site</b>: uma pessoa com papel de editor de
-          conteúdo ou admin, diferente de quem aprovou, precisa publicá-la em “Publicar campanhas”.
+          Campanha aprovada. Ela ainda <b>não está no site</b>: o admin precisa publicá-la em
+          “Publicar campanhas”.
         </p>
       )}
 
@@ -102,8 +102,8 @@ export default async function CuradoriaFilaPage({
       )}
 
       <p className="mt-3.5 text-[12.5px] text-muted">
-        Fluxo: submetido → análise/alinhamento → aprovação da curadoria → publicação separada
-        por outra conta na área de conteúdo. Só campanhas publicadas aparecem no portal.
+        Fluxo: submetido → análise/alinhamento → aprovação da curadoria → publicação pelo admin
+        em “Publicar campanhas”. Só campanhas publicadas aparecem no portal.
       </p>
     </div>
   );
