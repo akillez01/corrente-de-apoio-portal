@@ -37,7 +37,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (action === "alinhar") {
     const mensagens = [...request.mensagens];
     if (typeof body.mensagem === "string" && body.mensagem.trim()) {
-      mensagens.push({ autor: ator, texto: body.mensagem.trim(), criadoEm: now });
+      mensagens.push({ autor: ator, texto: body.mensagem.trim(), criadoEm: now, origem: "equipe" });
     }
     await requestRef.update({
       status: "em_alinhamento",

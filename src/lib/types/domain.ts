@@ -84,6 +84,8 @@ export interface RequestMessage {
   autor: string;
   texto: string;
   criadoEm: string;
+  // Mensagens antigas não têm origem e vieram da equipe (curadoria).
+  origem?: "requerente" | "equipe";
 }
 
 export interface RequestIdentification {

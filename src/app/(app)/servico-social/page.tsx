@@ -49,7 +49,8 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
     getRequestSummaries({ desde: f.de || undefined }),
     getSocialCaseSummaries(),
   ]);
-  const requests = all.filter((request) => request.status !== "arquivado");
+  // Pedidos cancelados pela pessoa só aparecem na aba "Todos".
+  const requests = all.filter((request) => request.status !== "arquivado" || f.caso === "todos");
   const caseStatus = (request: { id: string }): CaseStatus => cases.get(request.id)?.status ?? "sem_ficha";
   // Filtrar por resultado só faz sentido entre os encerrados.
   if (resultado && f.caso === "ativos") f.caso = "encerrado";
@@ -183,6 +184,11 @@ export default async function ServicoSocialPage({ searchParams }: { searchParams
                       </span>
                     )}
                     <PrioridadeBadge request={request} />
+                    {request.status === "arquivado" && (
+                      <span className="ml-2 rounded-full bg-[#F0F0F0] px-2 py-0.5 text-[11px] font-semibold text-[#777777]">
+                        cancelado pela pessoa
+                      </span>
+                    )}
                   </div>
                   <div className="mt-0.5 text-xs text-muted">
                     {(request.categorias ?? [request.categoria]).join(", ")}

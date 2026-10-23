@@ -7,6 +7,7 @@ import { RESULTADO_LABEL, type ResultadoEncerramento } from "@/lib/domain/encerr
 import { ProntuarioForm } from "@/components/servicoSocial/ProntuarioForm";
 import { CampanhaPanel } from "@/components/servicoSocial/CampanhaPanel";
 import { PrioridadePanel } from "@/components/servicoSocial/PrioridadePanel";
+import { ConversaPanel } from "@/components/pedidos/ConversaPanel";
 import { getCampaignByRequestId } from "@/lib/data/campaigns";
 
 export const revalidate = 0;
@@ -78,6 +79,12 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
             : ""}
         {" · "}consentimento LGPD em {new Date(request.consentimentoLgpdEm).toLocaleString("pt-BR")}
       </p>
+
+      {request.status === "arquivado" && (
+        <p className="mb-[18px] rounded-xl border border-border bg-[#F0F0F0] p-3.5 text-[12.5px] text-[#555555]">
+          A pessoa cancelou este pedido. Veja o motivo nas mensagens.
+        </p>
+      )}
 
       {socialCase?.status === "encerrado" && socialCase.encerramento && (
         <section className="mb-[18px] rounded-xl border border-[#CFE3D6] bg-[#EFF7F1] p-4 text-[13px] text-[#1F4E39]">
@@ -169,6 +176,10 @@ export default async function ServicoSocialCasoPage({ params }: { params: Promis
           campaign={campaign ? { status: campaign.status, slug: campaign.slug, titulo: campaign.titulo } : null}
           caseOpen={socialCase?.status === "aberto"}
         />
+      </div>
+
+      <div className="mb-5">
+        <ConversaPanel requestId={request.id} mensagens={request.mensagens} viewer="equipe" />
       </div>
 
       <ProntuarioForm

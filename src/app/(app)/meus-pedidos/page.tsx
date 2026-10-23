@@ -1,22 +1,13 @@
-import { StatusChip } from "@/components/StatusChip";
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { FriendlyStatusChip } from "@/components/pedidos/FriendlyStatusChip";
 import { requireRole } from "@/lib/auth/session";
 import { getCampaignByRequestId } from "@/lib/data/campaigns";
 import { getRequestsByRequerente } from "@/lib/data/requests";
-import { formatBRL } from "@/lib/format";
+import { getSocialCase } from "@/lib/data/socialCases";
+import { friendlyStatus } from "@/lib/domain/acompanhamento";
 import Link from "next/link";
 
 export const revalidate = 0;
-
-const VISIBLE_CAMPAIGN_STATUSES = new Set([
-  "publicado",
-  "meta_atingida",
-  "prazo_encerrado",
-  "repasse_pendente",
-  "repassado",
-  "prestacao_publicada",
-  "encerrado",
-]);
 
 export default async function MeusPedidosPage({
   searchParams,
@@ -26,26 +17,33 @@ export default async function MeusPedidosPage({
   const user = await requireRole("requerente", "admin");
   const { enviado, anexos } = await searchParams;
   const requests = await getRequestsByRequerente(user.uid);
-  const totalMeta = requests.reduce((acc, request) => acc + request.meta, 0);
-  const emAndamento = requests.filter((request) =>
-    ["submetido", "em_analise", "em_alinhamento"].includes(request.status),
-  ).length;
-  const aprovados = requests.filter((request) => request.status === "aprovado").length;
-  const reprovados = requests.filter((request) => request.status === "reprovado").length;
-  const totalMensagens = requests.reduce((acc, request) => acc + request.mensagens.length, 0);
 
-  const campaignsByRequest = new Map<string, { slug: string; public: boolean }>();
-  for (const request of requests) {
-    if (request.status === "aprovado") {
-      const campaign = await getCampaignByRequestId(request.id);
-      if (campaign) {
-        campaignsByRequest.set(request.id, {
-          slug: campaign.slug,
-          public: VISIBLE_CAMPAIGN_STATUSES.has(campaign.status),
-        });
-      }
-    }
-  }
+  const items = await Promise.all(
+    requests.map(async (request) => {
+      const [socialCase, campaign] = await Promise.all([getSocialCase(request.id), getCampaignByRequestId(request.id)]);
+      const status = friendlyStatus({
+        status: request.status,
+        criadoEm: request.criadoEm,
+        encaminhamentoCampanha: request.encaminhamentoCampanha,
+        caso: socialCase
+          ? {
+              status: socialCase.status,
+              resultado: socialCase.encerramento?.resultado ?? null,
+              encerradoEm: socialCase.encerramento?.data ?? null,
+            }
+          : null,
+        campanha: campaign ? { status: campaign.status, slug: campaign.slug } : null,
+      });
+      const lastTeamMessage = [...request.mensagens]
+        .filter((msg) => msg.origem !== "requerente")
+        .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))[0];
+      return { request, status, lastTeamMessage };
+    }),
+  );
+
+  const aguardandoResposta = items.filter((item) => item.status.tone === "action").length;
+  const emAndamento = items.filter((item) => item.status.tone === "progress" || item.status.tone === "neutral").length;
+  const concluidos = items.filter((item) => item.status.tone === "done").length;
 
   return (
     <div>
@@ -64,23 +62,18 @@ export default async function MeusPedidosPage({
           Cadastro recebido! O Serviço Social vai analisar seu caso e entrar em contato pela forma
           que você escolheu. Acompanhe o andamento por aqui.
           {anexos === "falha" &&
-            " Seus anexos não puderam ser enviados agora, mas o cadastro foi salvo. Se forem importantes, a equipe vai pedir de novo no atendimento."}
+            " Seus anexos não puderam ser enviados agora, mas o cadastro foi salvo. Você pode enviá-los de novo abrindo o pedido."}
         </p>
       )}
 
-      <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <KpiCard label="Pedidos enviados" value={String(requests.length)} />
+      <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <KpiCard label="Pedidos enviados" value={String(items.length)} />
         <KpiCard label="Em andamento" value={String(emAndamento)} />
-        <KpiCard label="Aprovados para publicação" value={String(aprovados)} />
-        <KpiCard label="Reprovados" value={String(reprovados)} />
-        <KpiCard
-          label="Meta total"
-          value={`R$ ${formatBRL(totalMeta)}`}
-          hint={`${totalMensagens} mensagem(ns) no historico`}
-        />
+        <KpiCard label="Aguardando sua resposta" value={String(aguardandoResposta)} />
+        <KpiCard label="Concluídos" value={String(concluidos)} />
       </div>
 
-      {requests.length === 0 ? (
+      {items.length === 0 ? (
         <div className="rounded-2xl border border-border bg-white p-10 text-center text-muted">
           Você ainda não enviou nenhum pedido.{" "}
           <Link href="/meus-pedidos/novo" className="text-primary underline">
@@ -90,59 +83,31 @@ export default async function MeusPedidosPage({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {requests.map((request) => {
-            const campaign = campaignsByRequest.get(request.id);
-            return (
-              <div key={request.id} className="rounded-2xl border border-border bg-white p-[18px]">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="font-serif text-lg font-semibold">{request.titulo}</h3>
-                    <div className="mt-0.5 text-xs text-muted">
-                      {(request.categorias ?? [request.categoria]).join(", ")}
-                      {request.meta > 0 ? ` · meta R$ ${formatBRL(request.meta)}` : ""} · enviado em{" "}
-                      {new Date(request.criadoEm).toLocaleDateString("pt-BR")}
-                    </div>
+          {items.map(({ request, status, lastTeamMessage }) => (
+            <Link
+              key={request.id}
+              href={`/meus-pedidos/${request.id}`}
+              className="block rounded-2xl border border-border bg-white p-[18px] transition hover:border-primary"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-serif text-lg font-semibold">
+                    {(request.categorias ?? [request.categoria]).join(", ")}
+                  </h3>
+                  <div className="mt-0.5 text-xs text-muted">
+                    Enviado em {new Date(request.criadoEm).toLocaleDateString("pt-BR")}
                   </div>
-                  <StatusChip status={request.status} />
                 </div>
-
-                {request.motivoReprovacao && (
-                  <p className="mt-3 rounded-lg border border-[#F2CBB5] bg-[#FDECE3] p-3 text-[12.5px] text-urgent">
-                    {request.motivoReprovacao}
-                  </p>
-                )}
-
-                {request.mensagens.length > 0 && (
-                  <div className="mt-3 flex flex-col gap-2">
-                    {request.mensagens.map((msg, i) => (
-                      <div key={i} className="rounded-lg border border-border bg-bg p-3 text-[12.5px]">
-                        <span className="font-semibold">{msg.autor}</span>{" "}
-                        <span className="text-muted">
-                          · {new Date(msg.criadoEm).toLocaleString("pt-BR")}
-                        </span>
-                        <p className="mt-1">{msg.texto}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {request.status === "aprovado" && campaign && !campaign.public && (
-                  <p className="mt-3 text-[12.5px] text-muted">
-                    Seu pedido foi aprovado para publicação. A equipe editorial está preparando a versão pública.
-                  </p>
-                )}
-
-                {campaign?.public && (
-                  <Link
-                    href={`/pt/campanha/${campaign.slug}`}
-                    className="mt-3 inline-block rounded-lg border border-border bg-bg px-3.5 py-1.5 text-[12.5px] font-semibold transition hover:border-primary"
-                  >
-                    Ver campanha publicada →
-                  </Link>
-                )}
+                <FriendlyStatusChip label={status.label} tone={status.tone} />
               </div>
-            );
-          })}
+              {lastTeamMessage && (
+                <p className="mt-3 line-clamp-2 rounded-lg bg-bg p-3 text-[12.5px]">
+                  <span className="font-semibold">Última mensagem da equipe:</span> {lastTeamMessage.texto}
+                </p>
+              )}
+              <span className="mt-3 inline-block text-[13px] font-semibold text-primary">Acompanhar pedido →</span>
+            </Link>
+          ))}
         </div>
       )}
     </div>

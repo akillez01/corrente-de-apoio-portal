@@ -28,7 +28,7 @@ redirecionam para os novos (`next.config.mjs`).
 
 | Tela | Rota | Acesso |
 | --- | --- | --- |
-| Meus pedidos / novo cadastro | `app/(app)/meus-pedidos`, `meus-pedidos/novo` | `requerente` |
+| Meus pedidos / novo cadastro / acompanhamento | `app/(app)/meus-pedidos`, `meus-pedidos/novo`, `meus-pedidos/[id]` | `requerente` (só os próprios pedidos) |
 | Serviço Social — casos e ficha | `app/(app)/servico-social`, `servico-social/[id]` | `assistente_social`, `admin` |
 | Curadoria — fila e pedido (define título e meta ao aprovar) | `app/(app)/curadoria`, `curadoria/[id]` | `curador`, `admin` |
 | Voluntários do Daime (diretório com filtros) | `app/(app)/voluntarios` | `curador`, `assistente_social`, `admin` |
@@ -39,6 +39,17 @@ redirecionam para os novos (`next.config.mjs`).
 | Publicação de campanhas | `app/(app)/admin/campanhas` | somente `admin` (pode publicar o que aprovou; ver `src/lib/domain/publicacao.ts`) |
 | Usuários e papéis | `app/(app)/admin/usuarios` | `admin` |
 | Minha conta (senha) | `app/(app)/conta` | qualquer conta |
+
+### Acompanhamento pela pessoa atendida (`/meus-pedidos/[id]`)
+
+- Status em linguagem simples e linha do tempo (`src/lib/domain/acompanhamento.ts`): recebido →
+  acolhimento → campanha (quando houver) → atendimento concluído com o resultado.
+- Conversa com a equipe (`POST /api/pedidos/[id]/mensagens`), também exibida na ficha do
+  Serviço Social; mensagens guardam `origem` (requerente/equipe).
+- Envio de documentos depois do cadastro (`POST /api/pedidos/[id]/anexos`, até 15 por pedido).
+- Cancelamento pela própria pessoa (`POST /api/pedidos/[id]/cancelar`) enquanto o pedido não
+  avançou; o pedido vai para `arquivado` e aparece na aba “Todos” do Serviço Social.
+- O prontuário (avaliação, plano, evolução) nunca é exibido para a pessoa.
 
 ### Evolução × encerramento no Serviço Social
 
